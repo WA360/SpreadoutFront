@@ -32,7 +32,7 @@ export async function logIn(prevState: any, formData: FormData) {
     return result.error.flatten();
   } else {
     const response = await axios.post<LoginResponse>(
-      "http://172.16.194.19:3000/users/login",
+      "http://ec2-3-38-176-179.ap-northeast-2.compute.amazonaws.com:4000/users/login",
       data
     );
 
@@ -44,15 +44,20 @@ export async function logIn(prevState: any, formData: FormData) {
 }
 
 export async function cookieTest(prevState: any, formData: FormData) {
-  const response = await axios.get<any>("http://172.16.194.19:3000/users", {
-    withCredentials: true,
-  });
+  const response = await axios.get<any>(
+    "http://ec2-3-38-176-179.ap-northeast-2.compute.amazonaws.com:4000/users",
+    {
+      withCredentials: true,
+    }
+  );
 
   console.log(response, "respon");
 }
 
 export async function cookieTest2(prevState: any, formData: FormData) {
-  const response = await axios.get<any>("http://172.16.194.19:3000/users");
+  const response = await axios.get<any>(
+    "http://ec2-3-38-176-179.ap-northeast-2.compute.amazonaws.com:4000/users"
+  );
 
   console.log(response, "respon");
 }
