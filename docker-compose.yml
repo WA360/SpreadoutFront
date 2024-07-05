@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  node:
+    build: .
+    image: nmm_frontend
+    # container_name: nmm_frontend
+    ports:
+      - "5000:3000"
+    networks:
+      - jungle_network
+
+networks:
+  jungle_network:
+    external: true
+    driver: bridge
+    
