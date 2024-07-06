@@ -1,5 +1,5 @@
-const DB_NAME = "PDFStorage";
-const STORE_NAME = "pdfs";
+const DB_NAME = 'PDFStorage';
+const STORE_NAME = 'pdfs';
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -10,18 +10,18 @@ function openDB(): Promise<IDBDatabase> {
 
     request.onupgradeneeded = () => {
       const db = request.result;
-      db.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
+      db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
     };
   });
 }
 
 export async function savePDF(
   name: string,
-  data: ArrayBuffer
+  data: ArrayBuffer,
 ): Promise<number> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, "readwrite");
+    const transaction = db.transaction(STORE_NAME, 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
     const request = store.add({ name, data });
 
@@ -33,7 +33,7 @@ export async function savePDF(
 export async function getPDF(id: string): Promise<ArrayBuffer> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, "readonly");
+    const transaction = db.transaction(STORE_NAME, 'readonly');
     const store = transaction.objectStore(STORE_NAME);
     const request = store.get(parseInt(id, 10));
 
