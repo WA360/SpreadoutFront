@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="ko">
       <body className={`${inter.className} flex flex-col`}>
         <Providers>
-          <main className="w-full">{children}ㅎㅇㅎㅇ</main>
+          <main className="w-full">{children}</main>
         </Providers>
       </body>
     </html>

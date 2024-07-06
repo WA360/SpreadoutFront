@@ -1,11 +1,14 @@
+"use server";
+
 import axios from "axios";
 import {
   PASSWORD_MIN_LENGTH,
   PASSWORD_REGEX,
   PASSWORD_REGEX_ERROR,
 } from "@/lib/constants";
-import { User } from "@/recoil/atoms";
 import { z } from "zod";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 interface LoginResponse {
   name: string;
@@ -32,32 +35,15 @@ export async function logIn(prevState: any, formData: FormData) {
     return result.error.flatten();
   } else {
     const response = await axios.post<LoginResponse>(
-      "http://ec2-3-38-176-179.ap-northeast-2.compute.amazonaws.com:4000/users/login",
+      process.env.API_URL! + "users/login",
       data
     );
 
     if (response.status === 200) {
-      document.cookie = `token=${response.data.token}`;
-      return response.data;
+      cookies().set("token", response.data.token);
+      throw redirect("/");
+    } else {
+      throw new Error("Login failed");
     }
   }
-}
-
-export async function cookieTest(prevState: any, formData: FormData) {
-  const response = await axios.get<any>(
-    "http://ec2-3-38-176-179.ap-northeast-2.compute.amazonaws.com:4000/users",
-    {
-      withCredentials: true,
-    }
-  );
-
-  console.log(response, "respon");
-}
-
-export async function cookieTest2(prevState: any, formData: FormData) {
-  const response = await axios.get<any>(
-    "http://ec2-3-38-176-179.ap-northeast-2.compute.amazonaws.com:4000/users"
-  );
-
-  console.log(response, "respon");
 }

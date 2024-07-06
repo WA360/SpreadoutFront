@@ -1,4 +1,4 @@
-import { InputHTMLAttributes } from 'react';
+import { InputHTMLAttributes } from "react";
 
 interface InputProps {
   name: string;
@@ -10,7 +10,6 @@ export default function Input({
   errors = [],
   ...rest
 }: InputProps & InputHTMLAttributes<HTMLInputElement>) {
-  console.log(rest);
   return (
     <div className="flex flex-col gap-2">
       <input
