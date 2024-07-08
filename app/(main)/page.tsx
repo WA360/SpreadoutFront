@@ -1,3 +1,4 @@
+// src/app/(main)/page.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -7,80 +8,12 @@ import { pdfFileState } from "@/recoil/atoms";
 import { useRecoilValue } from "recoil";
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
+import axios from "axios"; // 사용자 정의 axios 인스턴스 임포트
 
 interface TabData {
   key: string;
   title: string;
 }
-
-const graph_data = {
-    "nodes": [
-        {
-            "id": 1,
-            "level": 1
-        },
-        {
-            "id": 20,
-            "level":1,
-        },
-        {
-            "id": 38,
-            "level": 3
-        },
-        {
-            "id": 56,
-            "level": 1
-        },
-        {
-            "id": 89,
-            "level": 2
-        },
-        {
-            "id": 97,
-            "level": 3
-        },
-        {
-            "id": 101,
-            "level": 1
-        },
-        {
-            "id": 120,
-            "level": 2
-        }
-    ],
-    "links": [
-        {
-            "source": 1,
-            "target": 20,
-            "value": 0.8175730082622867
-        },
-        {
-            "source": 20,
-            "target": 38,
-            "value": 0.8736505396586434
-        },
-        {
-            "source": 20,
-            "target": 120,
-            "value": 0.8201159179735522
-        },
-        {
-            "source": 38,
-            "target": 89,
-            "value": 0.8029193163652873
-        },
-        {
-            "source": 56,
-            "target": 97,
-            "value": 0.8442600976246891
-        },
-        {
-            "source": 56,
-            "target": 101,
-            "value": 0.8303469875692099
-        }
-    ]
-};
 
 const Page = () => {
   const pdfFile = useRecoilValue(pdfFileState);
@@ -92,6 +25,8 @@ const Page = () => {
   const [tabs2, setTabs2] = useState<TabData[]>([{ key: 'chat', title: 'Chat' }]);
   const [activeTab2, setActiveTab2] = useState<number>(0);
   const [tabPageNumbers2, setTabPageNumbers2] = useState<{ [key: string]: number }>({ chat: 1 });
+
+  const [graphData, setGraphData] = useState<any>(null); // Graph 데이터 상태 관리
 
   const addTab1 = () => {
     const newKey = `tab-${tabs1.length}`;
@@ -125,11 +60,19 @@ const Page = () => {
     setTabPageNumbers2(newTabPageNumbers);
   };
 
-  const handleNodeClick = (pageNumber: number) => {
+  const handleNodeClick = async (pageNumber: number) => {
     const newTabKey = `tab-${tabs1.length}`;
     setTabs1([...tabs1, { key: newTabKey, title: `Page ${pageNumber}` }]);
     setActiveTab1(tabs1.length);
     setTabPageNumbers1({ ...tabPageNumbers1, [newTabKey]: pageNumber });
+
+    // 선택한 노드의 페이지 번호를 사용하여 PDF 관련 데이터 요청
+    try {
+      const response = await axios.get(`http://3.38.176.179:4000/pdf`, { params: { pdfId: pageNumber } });
+      setGraphData(response.data); // Graph 데이터 업데이트
+    } catch (error) {
+      console.error("Error fetching PDF data:", error);
+    }
   };
 
   useEffect(() => {
@@ -151,7 +94,7 @@ const Page = () => {
         {tabs1.map((tab) => (
           <TabPanel key={tab.key}>
             {tab.key === 'diagram' ? (
-              pdfFile == null ? <></> : <Graph data={graph_data} onNodeClick={handleNodeClick} />
+              pdfFile == null ? <></> : <Graph data={graphData} onNodeClick={handleNodeClick} />
             ) : (
               <div className="tab-panel">
                 <h3>Tab Number: {tabs1.findIndex(t => t.key === tab.key)}</h3>
