@@ -1,92 +1,45 @@
+//page.tsx
 // src/app/(main)/page.tsx
-"use client";
+'use client';
 
 import React, { useEffect, useState } from 'react';
 import PDFReader from '@/components/PDFReader';
 import Graph from '@/components/Graph/Graph';
-import { pdfFileState } from '@/recoil/atoms';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { selectedPdfIdState, pdfFileState } from '@/recoil/atoms';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-import axios from "axios"; // 사용자 정의 axios 인스턴스 임포트
+import axios from 'axios';
 
 interface TabData {
   key: string;
   title: string;
 }
 
-const graph_data = {
-    "nodes": [
-        {
-            "id": 1,
-            "level": 1
-        },
-        {
-            "id": 20,
-            "level":1,
-        },
-        {
-            "id": 38,
-            "level": 3
-        },
-        {
-            "id": 56,
-            "level": 1
-        },
-        {
-            "id": 89,
-            "level": 2
-        },
-        {
-            "id": 97,
-            "level": 3
-        },
-        {
-            "id": 101,
-            "level": 1
-        },
-        {
-            "id": 120,
-            "level": 2
-        }
-    ],
-    "links": [
-        {
-            "source": 1,
-            "target": 20,
-            "value": 0.8175730082622867
-        },
-        {
-            "source": 20,
-            "target": 38,
-            "value": 0.8736505396586434
-        },
-        {
-            "source": 20,
-            "target": 120,
-            "value": 0.8201159179735522
-        },
-        {
-            "source": 38,
-            "target": 89,
-            "value": 0.8029193163652873
-        },
-        {
-            "source": 56,
-            "target": 97,
-            "value": 0.8442600976246891
-        },
-        {
-            "source": 56,
-            "target": 101,
-            "value": 0.8303469875692099
-        }
-    ]
-};
+interface Node {
+  id: number;
+  name: string;
+  page: number;
+  level: number;
+  bookmarked: number;
+}
+
+interface Link {
+  id: number;
+  source: number;
+  target: number;
+  value: number;
+}
+
+interface GraphData {
+  nodes: Node[];
+  links: Link[];
+}
 
 const Page = () => {
   const pdfFile = useRecoilValue(pdfFileState);
-
+  const selectedPdfId = useRecoilValue(selectedPdfIdState);
+  const setPdfFile = useSetRecoilState(pdfFileState);
   const [tabs1, setTabs1] = useState<TabData[]>([
     { key: 'diagram', title: 'Diagram' },
   ]);
@@ -94,14 +47,14 @@ const Page = () => {
   const [tabPageNumbers1, setTabPageNumbers1] = useState<{
     [key: string]: number;
   }>({ diagram: 1 });
-
   const [tabs2, setTabs2] = useState<TabData[]>([
     { key: 'chat', title: 'Chat' },
   ]);
   const [activeTab2, setActiveTab2] = useState<number>(0);
-  const [tabPageNumbers2, setTabPageNumbers2] = useState<{ [key: string]: number }>({ chat: 1 });
-
-  const [graphData, setGraphData] = useState<any>(null); // Graph 데이터 상태 관리
+  const [tabPageNumbers2, setTabPageNumbers2] = useState<{
+    [key: string]: number;
+  }>({ chat: 1 });
+  const [graphData, setGraphData] = useState<GraphData | null>(null);
 
   const addTab1 = () => {
     const newKey = `tab-${tabs1.length}`;
@@ -141,24 +94,64 @@ const Page = () => {
     setTabPageNumbers2(newTabPageNumbers);
   };
 
+  const fetchGraphData = async (pdfId: number) => {
+    try {
+      const response = await axios.get(`http://3.38.176.179:4000/pdf`, {
+        params: { pdfId },
+      });
+      const data = response.data;
+
+      // GraphData 형식으로 변환
+      const nodes = data.node.map((node: any) => ({
+        id: node.id,
+        name: node.name,
+        page: node.start_page,
+        level: node.level,
+        bookmarked: node.bookmarked,
+      }));
+      console.log("nodes : ", nodes);
+
+      const links = data.connection.map((conn: any) => ({
+        id: conn.id,
+        source: conn.source_page,
+        target: conn.target_page,
+        value: conn.similarity,
+      }));
+      console.log("links : ", links);
+
+      setGraphData({ nodes, links });
+
+      // PDF URL 추출
+      const pdfUrl = data.url;
+      if (pdfUrl) {
+        // S3에서 PDF 파일 읽기
+        const pdfResponse = await axios.get(pdfUrl, {
+          responseType: 'blob',
+        });
+        const pdfFile = new File([pdfResponse.data], "downloaded.pdf", {
+          type: "application/pdf",
+        });
+        setPdfFile(pdfFile);
+        console.log("pdf 가져옴 : ", pdfFile);
+      }
+
+    } catch (error) {
+      console.error('Error fetching PDF data:', error);
+    }
+  };
+
   const handleNodeClick = async (pageNumber: number) => {
     const newTabKey = `tab-${tabs1.length}`;
     setTabs1([...tabs1, { key: newTabKey, title: `Page ${pageNumber}` }]);
     setActiveTab1(tabs1.length);
     setTabPageNumbers1({ ...tabPageNumbers1, [newTabKey]: pageNumber });
-
-    // 선택한 노드의 페이지 번호를 사용하여 PDF 관련 데이터 요청
-    try {
-      const response = await axios.get(`http://3.38.176.179:4000/pdf`, { params: { pdfId: pageNumber } });
-      setGraphData(response.data); // Graph 데이터 업데이트
-    } catch (error) {
-      console.error("Error fetching PDF data:", error);
-    }
   };
 
   useEffect(() => {
-    console.log('PDF file state changed:', pdfFile);
-  }, [pdfFile]);
+    if (selectedPdfId !== null) {
+      fetchGraphData(selectedPdfId);
+    }
+  }, [selectedPdfId]);
 
   return (
     <div className="flex h-full">
@@ -181,7 +174,14 @@ const Page = () => {
         {tabs1.map((tab) => (
           <TabPanel key={tab.key}>
             {tab.key === 'diagram' ? (
-              pdfFile == null ? <></> : <Graph data={graphData} onNodeClick={handleNodeClick} />
+              selectedPdfIdState == null ? (
+                <></>
+              ) : (
+                <Graph
+                  data={graphData || { nodes: [], links: [] }}
+                  onNodeClick={handleNodeClick}
+                />
+              )
             ) : (
               <div className="relative tab-panel h-full">
                 <h3 className="absolute top-1 right-4 z-10">
@@ -217,7 +217,7 @@ const Page = () => {
                 <></>
               ) : (
                 <h1>Chat</h1>
-              ) // 채팅 들어갈 자리
+              )
             ) : (
               <div className="relative tab-panel h-full">
                 <h3 className="absolute top-">
