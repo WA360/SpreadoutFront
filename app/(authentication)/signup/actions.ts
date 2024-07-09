@@ -8,6 +8,7 @@ import {
 } from '@/lib/constants';
 import { z } from 'zod';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 const checkPassword = ({
   password,
@@ -20,8 +21,9 @@ const checkPassword = ({
 export const checkDuplicateId = async (id: string) => {
   console.log(id);
   const res = await axios.get(
-    `http://3.38.176.179:4000/users/signin/checkid?id=${id}`,
+    `${process.env.API_URL!}users/signup/checkid?id=${id}`,
   );
+  console.log(res, 'res');
   return !res.data.idExists;
 };
 
@@ -76,7 +78,7 @@ export async function createAccount(prevState: any, formData: FormData) {
     console.log(result.error.flatten());
     return result.error.flatten();
   } else {
-    const res = await axios.post('http://3.38.176.179:4000/users/signin', {
+    const res = await axios.post(`${process.env.API_URL!}users/signup`, {
       id: result.data.id,
       name: result.data.name,
       password: result.data.password,
