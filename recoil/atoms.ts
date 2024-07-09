@@ -1,4 +1,4 @@
-import { atom } from "recoil";
+import { atom } from 'recoil';
 
 export interface User {
   id: string;
@@ -12,7 +12,7 @@ export interface AuthState {
 }
 
 export const authAtom = atom<AuthState>({
-  key: "auth",
+  key: 'auth',
   default: {
     isAuthenticated: false,
     user: null,
@@ -20,8 +20,6 @@ export const authAtom = atom<AuthState>({
 });
 
 export const pdfFileState = atom<File | null>({
-  key: "pdfFileState",
+  key: 'pdfFileState',
   default: null,
 });
-
-
