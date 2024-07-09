@@ -33,16 +33,15 @@ interface GraphProps {
 }
 
 const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
-  if (!data) return null;
   const svgRef = useRef<SVGSVGElement>(null);
   const [level, setLevel] = useState<number>(3);
   const [nodes, setNodes] = useState<Node[]>(data.nodes);
-  const [links, setLinks] = useState<Link[]>(data.links);
+  const [links, setLinks] = useState<Link[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
     setNodes(data.nodes.filter((node) => node.level <= level));
-  }, [data]);
+  }, [data.nodes, level]);
 
   useEffect(() => {
     setLinks(
@@ -60,7 +59,7 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
         return isSourceValid && isTargetValid && link.value >= 0.85;
       }),
     );
-  }, [nodes]);
+  }, [nodes, data.links]);
 
   useEffect(() => {
     if (!nodes.length || !svgRef.current) return;
@@ -123,7 +122,7 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
     };
 
     const filteredNodes = nodes.filter((node) =>
-      node.name.toLowerCase().includes(searchTerm.toLowerCase()),
+      node.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const node = g
@@ -200,7 +199,7 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
         .translate(initialTranslate[0], initialTranslate[1])
         .scale(initialScale),
     );
-  }, [links, searchTerm]); // 검색어에 따라 useEffect가 호출되도록 추가
+  }, [nodes, links, level, searchTerm]); // 검색어에 따라 useEffect가 호출되도록 추가
 
   return (
     <div className="w-[600px] flex-shrink-0">
