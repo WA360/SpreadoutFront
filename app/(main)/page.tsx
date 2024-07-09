@@ -7,12 +7,81 @@ import { pdfFileState, graphDataState } from '@/recoil/atoms';
 import { useRecoilValue } from 'recoil';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-import axios from 'axios'; // 사용자 정의 axios 인스턴스 임포트
+import axios from "axios"; // 사용자 정의 axios 인스턴스 임포트
 
 interface TabData {
   key: string;
   title: string;
 }
+
+const graph_data = {
+    "nodes": [
+        {
+            "id": 1,
+            "level": 1
+        },
+        {
+            "id": 20,
+            "level":1,
+        },
+        {
+            "id": 38,
+            "level": 3
+        },
+        {
+            "id": 56,
+            "level": 1
+        },
+        {
+            "id": 89,
+            "level": 2
+        },
+        {
+            "id": 97,
+            "level": 3
+        },
+        {
+            "id": 101,
+            "level": 1
+        },
+        {
+            "id": 120,
+            "level": 2
+        }
+    ],
+    "links": [
+        {
+            "source": 1,
+            "target": 20,
+            "value": 0.8175730082622867
+        },
+        {
+            "source": 20,
+            "target": 38,
+            "value": 0.8736505396586434
+        },
+        {
+            "source": 20,
+            "target": 120,
+            "value": 0.8201159179735522
+        },
+        {
+            "source": 38,
+            "target": 89,
+            "value": 0.8029193163652873
+        },
+        {
+            "source": 56,
+            "target": 97,
+            "value": 0.8442600976246891
+        },
+        {
+            "source": 56,
+            "target": 101,
+            "value": 0.8303469875692099
+        }
+    ]
+};
 
 const Page = () => {
   const pdfFile = useRecoilValue(pdfFileState);
@@ -134,7 +203,7 @@ const Page = () => {
       <Tabs
         selectedIndex={activeTab2}
         onSelect={(tabIndex) => setActiveTab2(tabIndex)}
-        className="flex-1"
+        className="flex flex-col flex-1 h-full"
       >
         <TabList>
           {tabs2.map((tab, index) => (
@@ -151,16 +220,18 @@ const Page = () => {
           <TabPanel key={tab.key}>
             {tab.key === 'chat' ? (
               pdfFile == null ? (
-                <></>
+                <Chat />
               ) : (
-                <h1>Chat</h1>
-              ) // 채팅 들어갈 자리
+                <>
+                  <h1>Chat</h1>
+                  <div>chat</div>
+                </>
+              )
             ) : (
               <div className="relative tab-panel h-full">
-                <h3 className="absolute top-">
+                <h3 className="absolute top-1 right-4 z-10">
                   Tab Number: {tabs2.findIndex((t) => t.key === tab.key)}
                 </h3>
-                <PDFReader pageNumber={tabPageNumbers2[tab.key]} />
               </div>
             )}
           </TabPanel>

@@ -1,4 +1,4 @@
-import { atom } from "recoil";
+import { atom } from 'recoil';
 
 // 사용자 및 인증 상태를 정의
 export interface User {
@@ -13,7 +13,7 @@ export interface AuthState {
 }
 
 export const authAtom = atom<AuthState>({
-  key: "auth",
+  key: 'auth',
   default: {
     isAuthenticated: false,
     user: null,
@@ -22,7 +22,7 @@ export const authAtom = atom<AuthState>({
 
 // PDF 파일 상태 정의
 export const pdfFileState = atom<File | null>({
-  key: "pdfFileState",
+  key: 'pdfFileState',
   default: null,
 });
 

@@ -25,7 +25,7 @@ export default function RootLayout({
           <Header />
           <div className="flex flex-1 h-[calc(100%-60px)]">
             <LeftAside />
-            <main className="w-full">{children}</main>
+            <main className="w-full p-2">{children}</main>
           </div>
         </Providers>
       </body>
