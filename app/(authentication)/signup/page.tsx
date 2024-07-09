@@ -9,11 +9,6 @@ import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
 
 export default function CreateAccount() {
   const [state, dispatch] = useFormState(createAccount, null);
-  const [inputText, setInputText] = useState<string>('');
-
-  useEffect(() => {
-    console.log(inputText);
-  }, [inputText]);
 
   return (
     <div className="flex flex-col gap-10 py-8 px-6">
@@ -30,8 +25,6 @@ export default function CreateAccount() {
           errors={state?.fieldErrors.id}
           minLength={4}
           maxLength={10}
-          onChange={(e) => setInputText(e.target.value)}
-          onBlur={() => checkDuplicateId(inputText)}
         />
         <Input
           name="name"
@@ -56,8 +49,8 @@ export default function CreateAccount() {
           errors={state?.fieldErrors.confirm_password}
           minLength={PASSWORD_MIN_LENGTH}
         />
+        <Button text="회원가입" />
       </form>
-      <Button text="회원가입" />
     </div>
   );
 }

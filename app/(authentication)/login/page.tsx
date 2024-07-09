@@ -18,11 +18,11 @@ export default function Login() {
         <h2 className="text-xl">Log in with email and password.</h2>
       </div>
       <form action={dispatch} className="flex flex-col gap-3">
-        <Input name="id" type="text" placeholder="id" required />
+        <Input name="id" type="text" placeholder="아이디" required />
         <Input
           name="password"
           type="password"
-          placeholder="password"
+          placeholder="비밀번호"
           required
           minLength={PASSWORD_MIN_LENGTH}
         />

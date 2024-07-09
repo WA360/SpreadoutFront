@@ -19,12 +19,10 @@ const checkPassword = ({
 }) => password === confirm_password;
 
 export const checkDuplicateId = async (id: string) => {
-  console.log(id);
   const res = await axios.get(
     `${process.env.API_URL!}users/signup/checkid?id=${id}`,
   );
-  console.log(res, 'res');
-  return !res.data.idExists;
+  return !res.data.result;
 };
 
 const formSchema = z
@@ -75,7 +73,6 @@ export async function createAccount(prevState: any, formData: FormData) {
   const result = await formSchema.spa(data);
 
   if (!result.success) {
-    console.log(result.error.flatten());
     return result.error.flatten();
   } else {
     const res = await axios.post(`${process.env.API_URL!}users/signup`, {
@@ -84,9 +81,8 @@ export async function createAccount(prevState: any, formData: FormData) {
       password: result.data.password,
     });
 
-    if (res.status === 201) {
-      cookies().set('userId', res.data.userId);
-      redirect('/profile');
+    if (res.status === 200) {
+      redirect('/login');
     }
   }
 }
