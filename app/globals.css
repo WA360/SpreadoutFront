@@ -10,6 +10,7 @@ body {
   box-sizing: border-box;
   width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 
 .link {
@@ -23,6 +24,14 @@ body {
 }
 text {
   font: 50px sans-serif;
-  color:yellow;
+  color: yellow;
   pointer-events: none;
+}
+
+.react-tabs__tab {
+  height: 40px;
+}
+
+.react-tabs__tab-panel--selected {
+  height: calc(98% - 40px);
 }

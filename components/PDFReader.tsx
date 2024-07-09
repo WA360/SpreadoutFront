@@ -1,49 +1,80 @@
-"use client";
+// src/components/PDFReader.tsx
+'use client';
 
-import React, { useState, useRef, useEffect, memo, useMemo } from "react";
-import { useRecoilValue } from "recoil";
-import { Document, Page, pdfjs } from "react-pdf";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import "react-pdf/dist/esm/Page/TextLayer.css";
-import { pdfFileState } from "../recoil/atoms";
+import React, { useState, useEffect, useRef } from 'react';
+import { useRecoilValue } from 'recoil';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
+import { pdfFileState } from '../recoil/atoms';
 
-pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 interface PDFReaderProps {
   pageNumber: number;
 }
 
-const PDFReader: React.FC<PDFReaderProps> = memo(({ pageNumber }) => {
+const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber }) => {
   const pdfFile = useRecoilValue(pdfFileState);
   const [numPages, setNumPages] = useState<number | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(pageNumber);
+  const [visiblePages, setVisiblePages] = useState<number[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
-    scrollToPage(pageNumber);
+    const initialVisiblePages = [
+      // Math.max(1, pageNumber - 2),
+      // Math.max(1, pageNumber - 1),
+      pageNumber,
+      Math.min(numPages, pageNumber + 1),
+      Math.min(numPages, pageNumber + 2),
+      Math.min(numPages, pageNumber + 3),
+      Math.min(numPages, pageNumber + 4),
+    ].filter((value, index, self) => self.indexOf(value) === index);
+    setVisiblePages(initialVisiblePages);
   };
 
-  const scrollToPage = (page: number) => {
-    if (!containerRef.current || !numPages) return;
-    const container = containerRef.current;
-    const pageHeight = container.scrollHeight / numPages;
-    const scrollPosition = pageHeight * (page - 1);
-    container.scrollTo(0, scrollPosition);
+  const loadMorePages = (direction: 'up' | 'down') => {
+    if (isLoading || !numPages) return;
+
+    setIsLoading(true);
+    setTimeout(() => {
+      setVisiblePages((prev) => {
+        const newPages = [...prev];
+        if (direction === 'up' && newPages[0] > 1) {
+          newPages.unshift(newPages[0] - 1);
+        } else if (
+          direction === 'down' &&
+          newPages[newPages.length - 1] < numPages
+        ) {
+          newPages.push(newPages[newPages.length - 1] + 1);
+        }
+        return newPages;
+      });
+      setIsLoading(false);
+    }, 10); // 300ms delay to simulate loading
   };
 
   useEffect(() => {
     const handleScroll = () => {
-      if (!containerRef.current || !numPages) return;
+      if (containerRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+        const scrollBottom = scrollHeight - scrollTop - clientHeight;
 
-      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-      const scrollPosition = scrollTop / (scrollHeight - clientHeight);
-      const newPage = Math.floor(scrollPosition * numPages) + 1;
+        console.log(scrollBottom, 'scrollBottom');
+        console.log(scrollTop, 'scrollTop');
+        console.log(scrollHeight, 'scrollHeight');
+        console.log(clientHeight, 'clientHeight');
 
-      if (newPage !== currentPage) {
-        setCurrentPage(newPage);
+        if (scrollTop < clientHeight * 0.6) {
+          loadMorePages('up');
+        } else if (scrollBottom < clientHeight * 0.2) {
+          loadMorePages('down');
+        }
       }
     };
+    // handleScroll();
 
     const container = containerRef.current;
     if (container) {
@@ -55,45 +86,36 @@ const PDFReader: React.FC<PDFReaderProps> = memo(({ pageNumber }) => {
         container.removeEventListener('scroll', handleScroll);
       }
     };
-  }, [numPages, currentPage]);
-
-  useEffect(() => {
-    scrollToPage(pageNumber);
-  }, [pageNumber, numPages]);
-
-  // Memoize the Document component to avoid reloading the PDF on tab changes
-  const pdfDocument = useMemo(() => (
-    <Document
-      file={pdfFile}
-      onLoadSuccess={onDocumentLoadSuccess}
-      className="border border-gray-300 rounded"
-    >
-      {/* Render only visible pages to optimize performance */}
-      {numPages && Array.from(new Array(numPages), (el, index) => (
-        <Page
-          key={`page_${index + 1}`}
-          pageNumber={index + 1}
-          className="max-w-full h-auto mb-4"
-        />
-      ))}
-    </Document>
-  ), [pdfFile, numPages]);
+  }, [visiblePages, numPages, isLoading]);
 
   return (
     <div
       ref={containerRef}
-      className="container mx-auto p-4 h-screen overflow-auto"
+      className="container mx-auto p-4 overflow-auto h-full"
     >
-      {pdfFile && pdfDocument}
+      {pdfFile && (
+        <Document
+          file={pdfFile}
+          onLoadSuccess={onDocumentLoadSuccess}
+          className="border border-gray-300 rounded"
+        >
+          {visiblePages.map((pageNum) => (
+            <Page
+              key={pageNum}
+              pageNumber={pageNum}
+              className="max-w-full h-auto mb-4"
+            />
+          ))}
+        </Document>
+      )}
       {numPages && (
-        <div className="fixed bottom-4 right-4 bg-white p-2 rounded shadow">
-          <p className="text-sm text-gray-600">
-            총 {numPages}페이지 중 {currentPage}페이지
-          </p>
-        </div>
+        <p className="mt-4 text-sm text-gray-600">
+          총 {numPages}페이지 중 {visiblePages[0]} -{' '}
+          {visiblePages[visiblePages.length - 1]}페이지 표시 중
+        </p>
       )}
     </div>
   );
-});
+};
 
 export default PDFReader;
