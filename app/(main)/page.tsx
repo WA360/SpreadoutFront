@@ -220,14 +220,7 @@ const Page = () => {
         {tabs2.map((tab) => (
           <TabPanel key={tab.key}>
             {tab.key === 'chat' ? (
-              pdfFile == null ? (
-                <Chat />
-              ) : (
-                <>
-                  <h1>Chat</h1>
-                  <div>chat</div>
-                </>
-              )
+              <Chat />
             ) : (
               <div className="relative tab-panel h-full">
                 <h3 className="absolute top-1 right-4 z-10">
