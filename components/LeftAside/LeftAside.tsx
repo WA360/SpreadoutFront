@@ -133,7 +133,7 @@ const getUserUUID = async () => {
         <h2>PDF Files</h2>
         <ul>
           {pdfFiles.map((file) => (
-            <li key={file.id} onClick={() => handlePdfClick(file.id)}>
+            <li key={file.id} className='border' onClick={() => handlePdfClick(file.id)}>
               {file.filename}
             </li>
           ))}
