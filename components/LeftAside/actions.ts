@@ -6,7 +6,6 @@ import { cookies } from 'next/headers';
 export const fetchPdfFilesFromServer = async () => {
   try {
     const token = cookies().get('token');
-    console.log(token);
     const response = await axios.get('http://3.38.176.179:4000/pdf/list', {
       headers: {
         token: `${token?.value}`,

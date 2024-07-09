@@ -6,8 +6,7 @@ import './slider.css';
 interface Node {
   id: number;
   name: string;
-  start_page: number;
-  end_page: number;
+  page: number;
   level: number;
   bookmarked: number;
   x?: number;
@@ -18,8 +17,8 @@ interface Node {
 
 interface Link {
   id: number;
-  source: Node;
-  target: Node;
+  source: number | Node;
+  target: number | Node;
   value: number;
 }
 
@@ -36,34 +35,34 @@ interface GraphProps {
 const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [level, setLevel] = useState<number>(3);
-  const [nodes, setNodes] = useState<Node[]>([]);
+  const [nodes, setNodes] = useState<Node[]>(data.nodes);
   const [links, setLinks] = useState<Link[]>([]);
-
-  // 데이터가 준비되면 상태 업데이트
-  useEffect(() => {
-    if (data) {
-      setNodes(data.nodes.filter((node) => node.level <= level));
-    }
-  }, [level, data]);
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
-    if (data) {
-      console.log('asdfasdfasdfa', data);
-      console.log('alsdkjflaskd', nodes);
-      const nodeMap = new Map(nodes.map((node) => [node.id, node]));
-      setLinks(
-        data.links.map((conn) => ({
-          id: conn.id,
-          source: nodeMap.get(conn.source.id)!,
-          target: nodeMap.get(conn.target.id)!,
-          value: conn.value,
-        })),
-      );
-    }
-  }, [data, nodes]);
+    setNodes(data.nodes.filter((node) => node.level <= level));
+  }, [data.nodes, level]);
 
   useEffect(() => {
-    if (!nodes.length || !links.length || !svgRef.current) return;
+    setLinks(
+      data.links.filter((link) => {
+        const isSourceNode = typeof link.source !== 'number';
+        const isTargetNode = typeof link.target !== 'number';
+
+        const isSourceValid = isSourceNode
+          ? nodes.some((node) => node.id === (link.source as Node).id)
+          : nodes.some((node) => node.id === link.source);
+        const isTargetValid = isTargetNode
+          ? nodes.some((node) => node.id === (link.target as Node).id)
+          : nodes.some((node) => node.id === link.target);
+
+        return isSourceValid && isTargetValid && link.value >= 0.85;
+      }),
+    );
+  }, [nodes, data.links]);
+
+  useEffect(() => {
+    if (!nodes.length || !svgRef.current) return;
 
     const width = 600;
     const height = 800;
@@ -90,24 +89,12 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
       .force(
         'link',
         d3
-          .forceLink<Link>()
+          .forceLink<Node, Link>(links)
           .id((d: Node) => d.id)
-          .distance(150)
+          .distance(2000),
       )
-      .force('charge', d3.forceManyBody().strength(-300))
-      .force('center', d3.forceCenter(width / 2, height / 2))
-      .nodes(nodes) // 노드 데이터를 시뮬레이션에 설정
-      .on('tick', () => {
-        link
-          .attr('x1', (d: Link) => d.source.x ?? 0) // 옵셔널 체이닝을 사용하여 기본값 설정
-          .attr('y1', (d: Link) => d.source.y ?? 0)
-          .attr('x2', (d: Link) => d.target.x ?? 0)
-          .attr('y2', (d: Link) => d.target.y ?? 0);
-
-        node.attr('transform', (d: Node) => `translate(${d.x ?? 0},${d.y ?? 0})`);
-      });
-
-    simulation.force('link').links(links); // 링크 데이터를 시뮬레이션에 설정
+      .force('charge', d3.forceManyBody().strength(-100))
+      .force('center', d3.forceCenter(width / 2, height / 2));
 
     const link = g
       .append('g')
@@ -118,22 +105,41 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
       .append('line')
       .attr('class', 'link')
       .attr('stroke', '#999')
+      .attr('stroke-opacity', 0.6)
       .attr('stroke-width', (d: Link) => Math.sqrt(d.value) * 2);
+
+    const getNodeColor = (level: number) => {
+      switch (level) {
+        case 1:
+          return '#0349ec'; // 빨간색
+        case 2:
+          return '#00b4d8'; // 파란색
+        case 3:
+          return '#90e0ef'; // 연한 파란색
+        default:
+          return '#00b4d8'; // 기본 색상
+      }
+    };
+
+    const filteredNodes = nodes.filter((node) =>
+      node.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const node = g
       .append('g')
       .attr('class', 'nodes')
       .selectAll('g')
-      .data(nodes)
+      .data(filteredNodes)
       .enter()
       .append('g');
 
     node
       .append('circle')
-      .attr('r', 50)
-      .attr('fill', '#00b4d8')
+      .attr('r', (d: Node) => 100 / d.level) // 레벨에 따라 반지름 설정
+      .attr('fill', (d: Node) => getNodeColor(d.level)) // 레벨에 따라 색상 설정
       .on('click', (event: MouseEvent, d: Node) => {
-        onNodeClick(d.start_page); // start_page를 상위 컴포넌트로 전달
+        onNodeClick(d.page); // 페이지 번호를 상위 컴포넌트로 전달
+        console.log('page 전달 : ', d.page);
       })
       .call(
         d3
@@ -169,9 +175,22 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
       .attr('y', 3)
       .attr('fill', '#0077b6')
       .attr('font-weight', 'bold')
-      .text((d: Node) => d.name.toString()); // 노드 텍스트를 name으로 표시
+      .text((d: Node) => d.name);
 
-    const initialScale = 0.5;
+    simulation.on('tick', () => {
+      link
+        .attr('x1', (d: Link) => (d.source as Node).x!)
+        .attr('y1', (d: Link) => (d.source as Node).y!)
+        .attr('x2', (d: Link) => (d.target as Node).x!)
+        .attr('y2', (d: Link) => (d.target as Node).y!);
+
+      node.attr('transform', (d: Node) => `translate(${d.x},${d.y})`);
+    });
+
+    // 노드가 줄어들 때 시뮬레이션 강제 재시작
+    simulation.nodes(filteredNodes).alpha(1).restart();
+
+    const initialScale = 0.1;
     const initialTranslate: [number, number] = [width / 2, height / 2];
 
     svg.call(
@@ -180,12 +199,17 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
         .translate(initialTranslate[0], initialTranslate[1])
         .scale(initialScale),
     );
-  }, [nodes, links]);
-
-  if (!data) return <div>Loading...</div>; // 데이터가 없을 때 로딩 메시지 표시
+  }, [nodes, links, level, searchTerm]); // 검색어에 따라 useEffect가 호출되도록 추가
 
   return (
     <div className="w-[600px] flex-shrink-0">
+      <input
+        type="text"
+        placeholder="Search nodes"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="search-input"
+      />
       <Slider
         value={level}
         onChange={setLevel}

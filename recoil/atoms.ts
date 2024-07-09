@@ -1,4 +1,8 @@
+// src/recoil/atom.ts
+
 import { atom } from 'recoil';
+
+// 기존 atom 정의
 
 // 사용자 및 인증 상태를 정의
 export interface User {
@@ -26,33 +30,7 @@ export const pdfFileState = atom<File | null>({
   default: null,
 });
 
-// 그래프 데이터 상태 정의
-export interface Node {
-  id: number;
-  name: string;
-  start_page: number;
-  end_page: number;
-  level: number;
-  bookmarked: number;
-  x?: number;
-  y?: number;
-  fx?: number | null;
-  fy?: number | null;
-}
-
-export interface Link {
-  id: number;
-  source: Node;
-  target: Node;
-  value: number;
-}
-
-export interface GraphData {
-  nodes: Node[];
-  links: Link[];
-}
-
-export const graphDataState = atom<GraphData | null>({
-  key: "graphDataState",
+export const selectedPdfIdState = atom<number | null>({
+  key: 'selectedPdfIdState',
   default: null,
 });
