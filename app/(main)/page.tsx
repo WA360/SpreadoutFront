@@ -4,11 +4,16 @@ import React, { useEffect, useState } from 'react';
 import PDFReader from '@/components/PDFReader';
 import Graph from '@/components/Graph/Graph';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { selectedPdfIdState, pdfFileState } from '@/recoil/atoms';
+import {
+  selectedPdfIdState,
+  pdfFileState,
+  selectedTocState,
+} from '@/recoil/atoms';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import axios from 'axios';
 import Chat from '@/components/Chat/Chat';
+import LeftAside from '@/components/LeftAside/LeftAside';
 
 interface TabData {
   key: string;
@@ -39,6 +44,7 @@ const Page = () => {
   const pdfFile = useRecoilValue(pdfFileState);
   const selectedPdfId = useRecoilValue(selectedPdfIdState);
   const setPdfFile = useSetRecoilState(pdfFileState);
+  const selectedToc = useRecoilValue(selectedTocState);
   const [tabs1, setTabs1] = useState<TabData[]>([
     { key: 'diagram', title: 'Diagram' },
   ]);
@@ -55,11 +61,11 @@ const Page = () => {
   }>({ chat: 1 });
   const [graphData, setGraphData] = useState<GraphData | null>(null);
 
-  const addTab1 = () => {
-    const newKey = `tab-${tabs1.length}`;
-    setTabs1([...tabs1, { key: newKey, title: `Tab ${tabs1.length}` }]);
+  const addTab1 = (pageNumber: number) => {
+    const newTabKey = `tab-${tabs1.length}`;
+    setTabs1([...tabs1, { key: newTabKey, title: `Page ${pageNumber}` }]);
     setActiveTab1(tabs1.length);
-    setTabPageNumbers1({ ...tabPageNumbers1, [newKey]: 1 });
+    setTabPageNumbers1({ ...tabPageNumbers1, [newTabKey]: pageNumber });
   };
 
   const addTab2 = () => {
@@ -148,6 +154,12 @@ const Page = () => {
       fetchGraphData(selectedPdfId);
     }
   }, [selectedPdfId]);
+
+  useEffect(() => {
+    if (selectedToc) {
+      addTab1(selectedToc.startPage);
+    }
+  }, [selectedToc]);
 
   return (
     <div className="flex h-full">
