@@ -1,5 +1,3 @@
-// src/recoil/atom.ts
-
 import { atom } from 'recoil';
 
 // 기존 atom 정의
@@ -32,5 +30,11 @@ export const pdfFileState = atom<File | null>({
 
 export const selectedPdfIdState = atom<number | null>({
   key: 'selectedPdfIdState',
+  default: null,
+});
+
+// 선택된 목차 항목 상태 정의
+export const selectedTocState = atom<{ id: number; startPage: number } | null>({
+  key: 'selectedTocState',
   default: null,
 });

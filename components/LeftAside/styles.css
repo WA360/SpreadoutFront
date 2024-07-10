@@ -1,0 +1,41 @@
+/* styles.css */
+
+/* 전체 리스트의 스크롤 설정 */
+.scrollable-container {
+    max-height: 400px; /* 원하는 높이 설정 */
+    overflow-y: auto; /* 세로 스크롤 허용 */
+  }
+  
+  /* 각 파일 항목의 스타일 */
+  .scrollable-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  /* 파일 항목을 세로로 정렬 */
+  .scrollable-list-item {
+    display: block;
+    padding: 8px 16px;
+    white-space: nowrap; /* 텍스트가 줄 바꿈 없이 한 줄로 표시되도록 */
+    overflow: hidden;
+    text-overflow: ellipsis; /* 텍스트가 너무 길면 '...'으로 표시되도록 */
+    position: relative; /* 목차를 파일 항목의 아래에 배치하기 위해 필요 */
+  }
+  
+  /* 목차 리스트 스타일 */
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-top: 8px; /* 파일 이름과 목차 사이의 여백 */
+    padding-left: 20px; /* 목차와 파일 이름 사이의 여백 */
+    font-size: 0.9em; /* 목차 글자 크기 조정 */
+    color: #888; /* 흐린 글씨 색상 */
+  }
+  
+  /* 목차 항목의 스타일 */
+  .toc-item {
+    padding: 4px 0; /* 각 목차 항목의 패딩 */
+  }
+  
