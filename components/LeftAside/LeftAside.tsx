@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { fetchPdfFilesFromServer, fetchPdfDataFromServer } from './actions';
 
-
 const LeftAside = () => {
   const [pdfFile, setPdfFile] = useRecoilState(pdfFileState);
   const [selectedPdfId, setSelectedPdfId] = useRecoilState(selectedPdfIdState);
@@ -22,25 +21,25 @@ const LeftAside = () => {
     return null;
   };
 
-// Function to get user UUID with token
-const getUserUUID = async () => {
-  try {
-    // Obtain token from cookies
-    const token = getCookieValue('token');
+  // Function to get user UUID with token
+  const getUserUUID = async () => {
+    try {
+      // Obtain token from cookies
+      const token = getCookieValue('token');
 
-    // Send GET request with token in Authorization header
-    const response = await axios.get('http://3.38.176.179:4000/users/uuid', {
-      headers: {
-        token: `${token}`,
-      },
-    });
+      // Send GET request with token in Authorization header
+      const response = await axios.get('http://3.38.176.179:4000/users/uuid', {
+        headers: {
+          token: `${token}`,
+        },
+      });
 
-    return response.data.uuid;
-  } catch (error) {
-    console.error('Error fetching user UUID:', error);
-    throw error;
-  }
-};
+      return response.data.uuid;
+    } catch (error) {
+      console.error('Error fetching user UUID:', error);
+      throw error;
+    }
+  };
 
   // Function to upload PDF file
   const uploadPdfFile = async (file: File) => {
@@ -126,11 +125,21 @@ const getUserUUID = async () => {
   }, []);
 
   return (
-    <aside className="flex flex-col w-80 shrink-0 border-r p-4">
-      <input type="file" accept="application/pdf" onChange={handleFileChange} />
-      <p>Left Aside Content</p>
+    <aside className="flex flex-col w-80 shrink-0 border-r p-2">
+      <label
+        htmlFor="file_upload"
+        className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md  cursor-pointer hover:bg-blue-700 transition-colors duration-300"
+      >
+        파일 업로드
+      </label>
+      <input
+        id="file_upload"
+        type="file"
+        accept="application/pdf"
+        className="hidden"
+        onChange={handleFileChange}
+      />
       <div>
-        <h2>PDF Files</h2>
         <ul>
           {pdfFiles.map((file) => (
             <li key={file.id} onClick={() => handlePdfClick(file.id)}>
