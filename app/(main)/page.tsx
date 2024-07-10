@@ -108,7 +108,6 @@ const Page = () => {
         level: node.level,
         bookmarked: node.bookmarked,
       }));
-      console.log("nodes : ", nodes);
 
       const links = data.connection.map((conn: any) => ({
         id: conn.id,
@@ -116,7 +115,6 @@ const Page = () => {
         target: conn.target_page,
         value: conn.similarity,
       }));
-      console.log("links : ", links);
 
       setGraphData({ nodes, links });
 
@@ -127,13 +125,12 @@ const Page = () => {
         const pdfResponse = await axios.get(pdfUrl, {
           responseType: 'blob',
         });
-        const pdfFile = new File([pdfResponse.data], "downloaded.pdf", {
-          type: "application/pdf",
+        const pdfFile = new File([pdfResponse.data], 'downloaded.pdf', {
+          type: 'application/pdf',
         });
         setPdfFile(pdfFile);
-        console.log("pdf 가져옴 : ", pdfFile);
+        console.log('pdf 가져옴 : ', pdfFile);
       }
-
     } catch (error) {
       console.error('Error fetching PDF data:', error);
     }

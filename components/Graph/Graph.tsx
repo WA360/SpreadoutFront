@@ -34,18 +34,43 @@ interface GraphProps {
 
 const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
   const svgRef = useRef<SVGSVGElement>(null);
+  const [adjIdData, setAdjIdData] = useState<GraphData>({
+    nodes: [],
+    links: [],
+  });
   const [level, setLevel] = useState<number>(3);
-  const [nodes, setNodes] = useState<Node[]>(data.nodes);
+  const [nodes, setNodes] = useState<Node[]>([]);
   const [links, setLinks] = useState<Link[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
-    setNodes(data.nodes.filter((node) => node.level <= level));
-  }, [data.nodes, level]);
+    if (data) {
+      const newNodes = data.nodes.map((node, index) => ({
+        ...node,
+        id: index + 1, // id를 1부터 순차적으로 재할당
+      }));
+
+      const newLinks = data.links.map((link) => ({
+        ...link,
+        source: typeof link.source === 'number' ? link.source + 1 : link.source,
+        target: typeof link.target === 'number' ? link.target + 1 : link.target,
+      }));
+
+      setAdjIdData({ nodes: newNodes, links: newLinks });
+    }
+  }, [data]);
+
+  useEffect(() => {
+    console.log('adjIdData : ', adjIdData);
+  }, [adjIdData]);
+
+  useEffect(() => {
+    setNodes(adjIdData.nodes.filter((node) => node.level <= level));
+  }, [adjIdData.nodes, level]);
 
   useEffect(() => {
     setLinks(
-      data.links.filter((link) => {
+      adjIdData.links.filter((link) => {
         const isSourceNode = typeof link.source !== 'number';
         const isTargetNode = typeof link.target !== 'number';
 
@@ -59,7 +84,7 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
         return isSourceValid && isTargetValid && link.value >= 0.85;
       }),
     );
-  }, [nodes, data.links]);
+  }, [nodes, adjIdData.links]);
 
   useEffect(() => {
     if (!nodes.length || !svgRef.current) return;
@@ -85,16 +110,17 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
     svg.call(zoom);
 
     const simulation = d3
-      .forceSimulation<Node>()
+      .forceSimulation<Node>(nodes)
       .force(
         'link',
         d3
           .forceLink<Node, Link>(links)
-          .id((d: Node) => d.id)
+          .id((d) => d.id)
           .distance(2000),
       )
-      .force('charge', d3.forceManyBody().strength(-100))
-      .force('center', d3.forceCenter(width / 2, height / 2));
+      .force('charge', d3.forceManyBody().strength(-10))
+      .force('center', d3.forceCenter(width / 2, height / 2))
+      .force('collision', d3.forceCollide().radius(300));
 
     const link = g
       .append('g')
@@ -122,7 +148,7 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
     };
 
     const filteredNodes = nodes.filter((node) =>
-      node.name.toLowerCase().includes(searchTerm.toLowerCase())
+      node.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     const node = g
@@ -139,7 +165,6 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
       .attr('fill', (d: Node) => getNodeColor(d.level)) // 레벨에 따라 색상 설정
       .on('click', (event: MouseEvent, d: Node) => {
         onNodeClick(d.page); // 페이지 번호를 상위 컴포넌트로 전달
-        console.log('page 전달 : ', d.page);
       })
       .call(
         d3
@@ -184,7 +209,9 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
         .attr('x2', (d: Link) => (d.target as Node).x!)
         .attr('y2', (d: Link) => (d.target as Node).y!);
 
-      node.attr('transform', (d: Node) => `translate(${d.x},${d.y})`);
+      node.attr('transform', (d) => {
+        return `translate(${d.x},${d.y})`;
+      });
     });
 
     // 노드가 줄어들 때 시뮬레이션 강제 재시작
