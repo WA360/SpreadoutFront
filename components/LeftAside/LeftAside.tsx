@@ -2,7 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
-import { pdfFileState, selectedPdfIdState, selectedTocState } from '../../recoil/atoms';
+import {
+  pdfFileState,
+  selectedPdfIdState,
+  selectedTocState,
+} from '../../recoil/atoms';
 import { fetchPdfFilesFromServer, fetchPdfDataFromServer } from './actions';
 import axios from 'axios';
 import './styles.css'; // CSS 파일 import
@@ -11,7 +15,9 @@ const LeftAside = () => {
   const [pdfFile, setPdfFile] = useRecoilState(pdfFileState);
   const [selectedPdfId, setSelectedPdfId] = useRecoilState(selectedPdfIdState);
   const [selectedToc, setSelectedToc] = useRecoilState(selectedTocState);
-  const [pdfFiles, setPdfFiles] = useState<{ id: number; filename: string }[]>([]);
+  const [pdfFiles, setPdfFiles] = useState<{ id: number; filename: string }[]>(
+    [],
+  );
   const [pdfData, setPdfData] = useState<any>(null);
 
   const getCookieValue = (name: string) => {
@@ -128,7 +134,6 @@ const LeftAside = () => {
         onChange={handleFileChange}
       />
       <div>
-        <h2>PDF Files</h2>
         <div className="file-list-container">
           <div className="scrollable-container">
             <ul className="scrollable-list">
@@ -141,15 +146,23 @@ const LeftAside = () => {
                   {file.filename}
                   {selectedPdfId === file.id && pdfData && (
                     <ul className="toc-list">
-                      {pdfData.node.map((node: { id: number; name: string; start_page: number }) => (
-                        <li 
-                          key={node.id} 
-                          className="toc-item"
-                          onClick={() => handleTocClick(node.id, node.start_page)} // 클릭 시 selectedToc 업데이트
-                        >
-                          {node.name}
-                        </li>
-                      ))}
+                      {pdfData.node.map(
+                        (node: {
+                          id: number;
+                          name: string;
+                          start_page: number;
+                        }) => (
+                          <li
+                            key={node.id}
+                            className="toc-item"
+                            onClick={() =>
+                              handleTocClick(node.id, node.start_page)
+                            } // 클릭 시 selectedToc 업데이트
+                          >
+                            {node.name}
+                          </li>
+                        ),
+                      )}
                     </ul>
                   )}
                 </li>
