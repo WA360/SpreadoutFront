@@ -113,9 +113,20 @@ const LeftAside = () => {
   }, []);
 
   return (
-    <aside className="flex flex-col w-80 shrink-0 border-r p-4">
-      <input type="file" accept="application/pdf" onChange={handleFileChange} />
-      <p>Left Aside Content</p>
+    <aside className="flex flex-col w-80 shrink-0 border-r p-2">
+      <label
+        htmlFor="file_upload"
+        className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md  cursor-pointer hover:bg-blue-700 transition-colors duration-300"
+      >
+        파일 업로드
+      </label>
+      <input
+        id="file_upload"
+        type="file"
+        accept="application/pdf"
+        className="hidden"
+        onChange={handleFileChange}
+      />
       <div>
         <h2>PDF Files</h2>
         <div className="file-list-container">
