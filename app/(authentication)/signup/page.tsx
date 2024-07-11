@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
 import { useFormState } from 'react-dom';
-import { createAccount, checkDuplicateId } from './actions';
+import { createAccount } from './actions';
 import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
 
 export default function CreateAccount() {

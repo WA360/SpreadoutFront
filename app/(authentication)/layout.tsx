@@ -1,15 +1,15 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "@/app/globals.css";
-import Header from "@/components/Header";
-import LeftAside from "@/components/LeftAside";
-import Providers from "@/components/Providers";
+import 'lib/polyfills';
+import React from 'react';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import '@/app/globals.css';
+import Providers from '@/components/Providers';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Spread Out|authu",
-  description: "회원관리",
+  title: 'Spread Out|authu',
+  description: '회원관리',
 };
 
 export default function RootLayout({

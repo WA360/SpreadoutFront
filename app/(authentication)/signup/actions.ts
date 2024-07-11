@@ -7,7 +7,6 @@ import {
   PASSWORD_REGEX_ERROR,
 } from '@/lib/constants';
 import { z } from 'zod';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 const checkPassword = ({

@@ -13,7 +13,6 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import axios from 'axios';
 import Chat from '@/components/Chat/Chat';
-import LeftAside from '@/components/LeftAside/LeftAside';
 
 interface TabData {
   key: string;
@@ -41,7 +40,6 @@ interface GraphData {
 }
 
 const Page = () => {
-  const pdfFile = useRecoilValue(pdfFileState);
   const selectedPdfId = useRecoilValue(selectedPdfIdState);
   const setPdfFile = useSetRecoilState(pdfFileState);
   const selectedToc = useRecoilValue(selectedTocState);
@@ -66,13 +64,6 @@ const Page = () => {
     setTabs1([...tabs1, { key: newTabKey, title: `Page ${pageNumber}` }]);
     setActiveTab1(tabs1.length);
     setTabPageNumbers1({ ...tabPageNumbers1, [newTabKey]: pageNumber });
-  };
-
-  const addTab2 = () => {
-    const newKey = `tab-${tabs2.length}`;
-    setTabs2([...tabs2, { key: newKey, title: `Tab ${tabs2.length}` }]);
-    setActiveTab2(tabs2.length);
-    setTabPageNumbers2({ ...tabPageNumbers2, [newKey]: 1 });
   };
 
   const removeTab1 = (key: string) => {

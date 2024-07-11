@@ -12,9 +12,9 @@ import axios from 'axios';
 import './styles.css'; // CSS 파일 import
 
 const LeftAside = () => {
-  const [pdfFile, setPdfFile] = useRecoilState(pdfFileState);
+  const [, setPdfFile] = useRecoilState(pdfFileState);
   const [selectedPdfId, setSelectedPdfId] = useRecoilState(selectedPdfIdState);
-  const [selectedToc, setSelectedToc] = useRecoilState(selectedTocState);
+  const [, setSelectedToc] = useRecoilState(selectedTocState);
   const [pdfFiles, setPdfFiles] = useState<{ id: number; filename: string }[]>(
     [],
   );

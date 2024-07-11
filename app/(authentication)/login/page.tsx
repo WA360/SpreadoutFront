@@ -9,7 +9,7 @@ import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
 import Link from 'next/link';
 
 export default function Login() {
-  const [state, dispatch] = useFormState(logIn, null);
+  const [, dispatch] = useFormState(logIn, null);
 
   return (
     <div className="flex flex-col gap-10 py-8 px-6">

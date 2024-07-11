@@ -6,7 +6,7 @@ import { logout } from './action';
 import Button from '../Button';
 
 export default function LogoutButton() {
-  const [state, dispatch] = useFormState(logout, null);
+  const [, dispatch] = useFormState(logout, null);
 
   return (
     <form action={dispatch} className="flex flex-col gap-3">

@@ -15,6 +15,9 @@
         "tabWidth": 2,
         "useTabs": false
       }
-    ]
+    ],
+    "@typescript-eslint/no-unused-vars": "off", // 사용되지 않는 변수 규칙 비활성화
+    "@typescript-eslint/no-explicit-any": "off", // any 타입 사용 규칙 비활성화
+    "@typescript-eslint/ban-ts-comment": "off" // @ts-ignore 주석 규칙 비활성화
   }
 }
