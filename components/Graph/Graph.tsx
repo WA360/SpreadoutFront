@@ -61,10 +61,6 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
   }, [data]);
 
   useEffect(() => {
-    console.log('adjIdData : ', adjIdData);
-  }, [adjIdData]);
-
-  useEffect(() => {
     setNodes(adjIdData.nodes.filter((node) => node.level <= level));
   }, [adjIdData.nodes, level]);
 
@@ -243,7 +239,14 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
         min={1}
         max={3}
         step={1}
-        renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
+        renderThumb={(props, state) => {
+          const { key, ...restProps } = props;
+          return (
+            <div key={key} {...restProps}>
+              {state.valueNow}
+            </div>
+          );
+        }}
         className="my-slider"
         thumbClassName="slider-thumb"
         trackClassName="slider-track"

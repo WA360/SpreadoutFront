@@ -62,11 +62,6 @@ const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber }) => {
         const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
         const scrollBottom = scrollHeight - scrollTop - clientHeight;
 
-        console.log(scrollBottom, 'scrollBottom');
-        console.log(scrollTop, 'scrollTop');
-        console.log(scrollHeight, 'scrollHeight');
-        console.log(clientHeight, 'clientHeight');
-
         if (scrollTop < clientHeight * 0.6) {
           loadMorePages('up');
         } else if (scrollBottom < clientHeight * 0.2) {
