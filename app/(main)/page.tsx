@@ -108,8 +108,8 @@ const Page = () => {
 
       const links = data.connection.map((conn: any) => ({
         id: conn.id,
-        source: conn.source_page,
-        target: conn.target_page,
+        source: conn.source_id,
+        target: conn.target_id,
         value: conn.similarity,
       }));
 

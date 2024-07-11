@@ -28,69 +28,65 @@ interface GraphData {
 }
 
 interface GraphProps {
-  data: GraphData | null;
+  data: GraphData;
   onNodeClick: (pageNumber: number) => void;
 }
 
 const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
   const svgRef = useRef<SVGSVGElement>(null);
-  const [adjIdData, setAdjIdData] = useState<GraphData>({
-    nodes: [],
-    links: [],
-  });
   const [level, setLevel] = useState<number>(3);
-  const [nodes, setNodes] = useState<Node[]>([]);
+  const [nodes, setNodes] = useState<Node[]>(data.nodes);
   const [links, setLinks] = useState<Link[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
 
+  // useEffect(() => {
+  //   setNodes(data.nodes.filter((node) => node.level <= level));
+  // }, [data.nodes, level]);
   useEffect(() => {
-    if (data) {
-      const newNodes = data.nodes.map((node, index) => ({
-        ...node,
-        id: index + 1, // id를 1부터 순차적으로 재할당
-      }));
+    if (!data.links[0]) return;
+    const filteredNodes = data.nodes.filter((node) => node.level <= level);
 
-      const newLinks = data.links.map((link) => ({
-        ...link,
-        source: typeof link.source === 'number' ? link.source + 1 : link.source,
-        target: typeof link.target === 'number' ? link.target + 1 : link.target,
-      }));
+    setNodes(filteredNodes);
+    console.log('data', data);
+    console.log('filteredNodes', filteredNodes);
 
-      setAdjIdData({ nodes: newNodes, links: newLinks });
-    }
-  }, [data]);
-
-  useEffect(() => {
-    console.log('adjIdData : ', adjIdData);
-  }, [adjIdData]);
-
-  useEffect(() => {
-    setNodes(adjIdData.nodes.filter((node) => node.level <= level));
-  }, [adjIdData.nodes, level]);
-
-  useEffect(() => {
     setLinks(
-      adjIdData.links.filter((link) => {
-        const isSourceNode = typeof link.source !== 'number';
-        const isTargetNode = typeof link.target !== 'number';
+      data.links.filter((link) => {
+        const sourceId =
+          typeof link.source === 'number'
+            ? link.source
+            : (link.source as Node).id;
+        const targetId =
+          typeof link.target === 'number'
+            ? link.target
+            : (link.target as Node).id;
 
-        const isSourceValid = isSourceNode
-          ? nodes.some((node) => node.id === (link.source as Node).id)
-          : nodes.some((node) => node.id === link.source);
-        const isTargetValid = isTargetNode
-          ? nodes.some((node) => node.id === (link.target as Node).id)
-          : nodes.some((node) => node.id === link.target);
+        const isSourceValid = filteredNodes.some(
+          (node) => node.id === sourceId,
+        );
+        const isTargetValid = filteredNodes.some(
+          (node) => node.id === targetId,
+        );
+
+        // console.log('sourceId', sourceId);
+        // console.log('targetId', targetId);
+        // console.log('isSourceValid', isSourceValid);
+        // console.log('isTargetValid', isTargetValid);
 
         return isSourceValid && isTargetValid && link.value >= 0.85;
       }),
     );
-  }, [nodes, adjIdData.links]);
+  }, [data.nodes, data.links, level]);
+
+  useEffect(() => {
+    console.log('links===>', links);
+  }, [links]);
 
   useEffect(() => {
     if (!nodes.length || !svgRef.current) return;
 
-    const width = 600;
-    const height = 800;
+    const width = 800;
+    const height = 600;
 
     const svg = d3
       .select(svgRef.current)
@@ -116,11 +112,11 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
         d3
           .forceLink<Node, Link>(links)
           .id((d) => d.id)
-          .distance(2000),
+          .distance(500), // 링크의 길이를 줄입니다.
       )
-      .force('charge', d3.forceManyBody().strength(-10))
+      .force('charge', d3.forceManyBody().strength(-200)) // 충돌 강도를 높입니다.
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius(300));
+      .force('collision', d3.forceCollide().radius(300)); // 충돌 방지 영역을 좁힙니다.
 
     const link = g
       .append('g')
@@ -137,9 +133,9 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
     const getNodeColor = (level: number) => {
       switch (level) {
         case 1:
-          return '#0349ec'; // 빨간색
+          return '#0349ec'; // 짙은 파란색
         case 2:
-          return '#00b4d8'; // 파란색
+          return '#00b4d8'; // 중간 파란색
         case 3:
           return '#90e0ef'; // 연한 파란색
         default:
@@ -161,7 +157,7 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
 
     node
       .append('circle')
-      .attr('r', (d: Node) => 100 / d.level) // 레벨에 따라 반지름 설정
+      .attr('r', (d: Node) => Math.max(5, 100 / d.level)) // 레벨에 따라 반지름을 조정하고 최소값을 설정합니다.
       .attr('fill', (d: Node) => getNodeColor(d.level)) // 레벨에 따라 색상 설정
       .on('click', (event: MouseEvent, d: Node) => {
         onNodeClick(d.page); // 페이지 번호를 상위 컴포넌트로 전달
@@ -209,15 +205,13 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
         .attr('x2', (d: Link) => (d.target as Node).x!)
         .attr('y2', (d: Link) => (d.target as Node).y!);
 
-      node.attr('transform', (d) => {
-        return `translate(${d.x},${d.y})`;
-      });
+      node.attr('transform', (d) => `translate(${d.x},${d.y})`);
     });
 
     // 노드가 줄어들 때 시뮬레이션 강제 재시작
     simulation.nodes(filteredNodes).alpha(1).restart();
 
-    const initialScale = 0.1;
+    const initialScale = 0.5;
     const initialTranslate: [number, number] = [width / 2, height / 2];
 
     svg.call(
@@ -226,10 +220,10 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
         .translate(initialTranslate[0], initialTranslate[1])
         .scale(initialScale),
     );
-  }, [nodes, links, level, searchTerm]); // 검색어에 따라 useEffect가 호출되도록 추가
+  }, [nodes, links, level, searchTerm]);
 
   return (
-    <div className="w-[600px] flex-shrink-0">
+    <div className="w-[800px] flex-shrink-0">
       <input
         type="text"
         placeholder="Search nodes"
@@ -248,7 +242,7 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
         thumbClassName="slider-thumb"
         trackClassName="slider-track"
       />
-      <svg ref={svgRef} className="w-[600px]"></svg>
+      <svg ref={svgRef} className="w-[800px]"></svg>
     </div>
   );
 };
