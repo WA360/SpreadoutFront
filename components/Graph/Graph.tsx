@@ -86,8 +86,8 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
   useEffect(() => {
     if (!nodes.length || !svgRef.current) return;
 
-    const width = 800;
-    const height = 600;
+    const width = 600;
+    const height = 800;
 
     const svg = d3
       .select(svgRef.current)
@@ -113,10 +113,12 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
         d3
           .forceLink<Node, Link>(links)
           .id((d) => d.id)
-          .distance(500), // 링크의 길이를 줄입니다.
+          // .distance(500), // 링크의 길이를 줄입니다.
       )
-      .force('charge', d3.forceManyBody().strength(-200)) // 충돌 강도를 높입니다.
-      .force('center', d3.forceCenter(width / 2, height / 2))
+      .force('charge', d3.forceManyBody()) // 충돌 강도를 높입니다.
+      // .force('center', d3.forceCenter(width / 2, height / 2))
+      .force('x', d3.forceX())
+      .force('y', d3.forceY())
       .force('collision', d3.forceCollide().radius(300)); // 충돌 방지 영역을 좁힙니다.
 
     const link = g
@@ -212,7 +214,7 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
     // 노드가 줄어들 때 시뮬레이션 강제 재시작
     simulation.nodes(filteredNodes).alpha(1).restart();
 
-    const initialScale = 0.5;
+    const initialScale = 0.08;
     const initialTranslate: [number, number] = [width / 2, height / 2];
 
     svg.call(
