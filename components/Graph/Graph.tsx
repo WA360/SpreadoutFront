@@ -30,6 +30,7 @@ interface GraphData {
 interface GraphProps {
   data: GraphData | null;
   onNodeClick: (pageNumber: number) => void;
+  key?: string | number; // key 속성 정의
 }
 
 const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
