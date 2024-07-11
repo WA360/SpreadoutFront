@@ -10,8 +10,12 @@ COPY package.json .
 
 RUN npm install
 
+RUN npx prettier --write .
+
 COPY . .
+
+RUN npm run build
 
 EXPOSE $PORT
 
-ENTRYPOINT ["npm", "run", "dev"]
+ENTRYPOINT ["npm", "run", "start"]

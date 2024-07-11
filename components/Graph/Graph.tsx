@@ -30,6 +30,7 @@ interface GraphData {
 interface GraphProps {
   data: GraphData;
   onNodeClick: (pageNumber: number) => void;
+  key?: string | number; // key 속성 정의
 }
 
 const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
@@ -237,7 +238,14 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
         min={1}
         max={3}
         step={1}
-        renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
+        renderThumb={(props, state) => {
+          const { key, ...restProps } = props;
+          return (
+            <div key={key} {...restProps}>
+              {state.valueNow}
+            </div>
+          );
+        }}
         className="my-slider"
         thumbClassName="slider-thumb"
         trackClassName="slider-track"
