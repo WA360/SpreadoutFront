@@ -49,11 +49,15 @@ const Chat: React.FC = () => {
       const reader = stream.getReader();
       const decoder = new TextDecoder();
       let aiMessage = '';
+      let isReading = true;
 
-      while (true) {
+      while (isReading) {
         const { done, value } = await reader.read();
         setIsLoading(false);
-        if (done) break;
+        if (done) {
+          isReading = false;
+          break;
+        }
 
         const chunk = decoder.decode(value);
         aiMessage += chunk;

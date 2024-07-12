@@ -5,13 +5,16 @@
     "plugin:@typescript-eslint/recommended",
     "prettier"
   ],
-  "plugins": ["prettier"],
+  "plugins": [
+    "prettier"
+  ],
   "rules": {
     "prettier/prettier": [
       "error",
       {
         "tabWidth": 2,
-        "useTabs": false
+        "useTabs": false,
+        "endOfLine": "auto"
       }
     ],
     "@typescript-eslint/no-unused-vars": "off", // 사용되지 않는 변수 규칙 비활성화
