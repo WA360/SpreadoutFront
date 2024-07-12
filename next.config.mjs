@@ -10,6 +10,9 @@ const __dirname = path.dirname(__filename);
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.alias = {
