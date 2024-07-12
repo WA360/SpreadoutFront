@@ -13,7 +13,7 @@ body {
   overflow: hidden;
 }
 
-.link {
+/* .link {
   stroke: #90e0ef;
   stroke-opacity: 0.8;
   stroke-width: 30px;
@@ -26,7 +26,7 @@ text {
   font: 50px sans-serif;
   color: yellow;
   pointer-events: none;
-}
+} */
 
 .react-tabs__tab {
   height: 40px;

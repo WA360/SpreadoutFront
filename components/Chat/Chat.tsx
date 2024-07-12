@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { sendMessage } from './actions';
 
 interface Message {
   text: string;
@@ -10,32 +9,83 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isEnd, setIsEnd] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    // 컴포넌트가 마운트되거나 메시지를 보낸 후 input에 포커스
-    inputRef.current?.focus();
-  }, [messages]);
+  const sendMessage = async (
+    question: string,
+  ): Promise<ReadableStream<Uint8Array>> => {
+    if (!isEnd) return new ReadableStream<Uint8Array>();
+
+    const response = await fetch(
+      'https://1b51-118-34-210-22.ngrok-free.app/question/bedrock',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.body!;
+  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputMessage.trim()) {
-      setMessages((prev) => [{ text: inputMessage, isUser: true }, ...prev]);
-      setIsLoading(true);
-      try {
-        const response = await sendMessage(inputMessage);
-        const responseText =
-          typeof response === 'object' ? JSON.stringify(response) : response;
-        setMessages((prev) => [{ text: responseText, isUser: false }, ...prev]);
-      } catch (error) {
-        setMessages((prev) => [
-          { text: '죄송합니다. 오류가 발생했습니다.', isUser: false },
-          ...prev,
-        ]);
-      } finally {
+    if (!inputMessage.trim() || isLoading) return;
+
+    setIsLoading(true);
+    setMessages((prev) => [{ text: inputMessage, isUser: true }, ...prev]);
+    setInputMessage('');
+    setIsEnd(false);
+
+    try {
+      const stream = await sendMessage(inputMessage);
+      const reader = stream.getReader();
+      const decoder = new TextDecoder();
+      let aiMessage = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
         setIsLoading(false);
-        setInputMessage('');
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        aiMessage += chunk;
+
+        setMessages((prev) => {
+          const newMessages = [...prev];
+          if (newMessages.length > 0 && newMessages[0].isUser) {
+            // 기존 메시지가 사용자 메시지인 경우 새로운 메시지를 앞에 추가
+            newMessages.unshift({ text: aiMessage, isUser: false });
+          } else if (newMessages.length > 0) {
+            // 기존 메시지가 AI 메시지인 경우 메시지를 교체
+            newMessages[0] = {
+              text: aiMessage,
+              isUser: false,
+            };
+          } else {
+            // 배열이 비어 있는 경우 새로운 메시지를 추가
+            newMessages.push({ text: aiMessage, isUser: false });
+          }
+          return newMessages;
+        });
       }
+    } catch (error) {
+      console.error('Error:', error);
+      setMessages((prev) => [
+        ...prev,
+        { text: '메시지 전송 중 오류가 발생했습니다.', isUser: false },
+      ]);
+      setIsEnd(true);
+    } finally {
+      setIsLoading(false);
+      setIsEnd(true);
     }
   };
 
@@ -62,12 +112,12 @@ const Chat: React.FC = () => {
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           placeholder="메시지를 입력하세요..."
-          disabled={isLoading}
+          disabled={!isEnd}
           className="flex-grow p-2 border rounded-l"
         />
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={!isEnd}
           className="p-2 bg-blue-500 text-white rounded-r"
         >
           전송
