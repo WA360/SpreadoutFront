@@ -19,24 +19,28 @@ interface TabData {
   title: string;
 }
 
-interface Node {
-  id: number;
-  name: string;
-  page: number;
-  level: number;
+export interface origin_Node {
   bookmarked: number;
+  end_page: number;
+  group: number;
+  id: number;
+  level: number;
+  name: string;
+  pdf_file_id: number;
+  start_page: number;
 }
 
-interface Link {
+export interface origin_Link {
   id: number;
+  pdf_file_id: number;
+  similarity: number;
   source: number;
   target: number;
-  value: number;
 }
 
-interface GraphData {
-  nodes: Node[];
-  links: Link[];
+export interface GraphData {
+  nodes: origin_Node[];
+  links: origin_Link[];
 }
 
 const Page = () => {
@@ -96,6 +100,8 @@ const Page = () => {
         params: { pdfId },
       });
       const data = response.data;
+
+      console.log('data---->', data);
 
       setGraphData(data);
 
@@ -162,7 +168,7 @@ const Page = () => {
               ) : (
                 <Graph
                   data={graphData || { nodes: [], links: [] }}
-                  onNodeClick={handleNodeClick}
+                  handleNodeClick={handleNodeClick}
                 />
               )
             ) : (

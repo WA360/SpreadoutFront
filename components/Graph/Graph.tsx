@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import Slider from 'react-slider';
 import './slider.css';
+import { GraphData as OrignGraphData } from '@/app/(main)/page';
 
 // Node 인터페이스 정의
 interface Node extends d3.SimulationNodeDatum {
@@ -33,8 +34,8 @@ interface Data {
 }
 
 interface GraphProps {
-  data: Data;
-  onNodeClick: (node: Node) => void;
+  data: OrignGraphData;
+  handleNodeClick: (pageNumber: number) => void;
 }
 
 // 데이터 변환 함수
@@ -109,7 +110,7 @@ const getNodeSize = (level: string): number => {
   }
 };
 
-const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
+const Graph: React.FC<GraphProps> = ({ data, handleNodeClick }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [transformedData, setTransformedData] = useState<Data>({
     nodes: [],
@@ -176,7 +177,7 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
       .join('circle')
       .attr('r', (d) => getNodeSize(d.level))
       .attr('fill', (d) => color(d.level))
-      .on('click', (event, d) => onNodeClick(d))
+      .on('click', (event, d: Node) => handleNodeClick(Number(d.id)))
       .call(
         d3
           .drag<SVGCircleElement, Node>()
@@ -218,7 +219,7 @@ const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
     return () => {
       simulation.stop();
     };
-  }, [transformedData, onNodeClick]);
+  }, [transformedData]);
 
   return (
     <div>
