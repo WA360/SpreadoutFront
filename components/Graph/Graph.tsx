@@ -3,7 +3,6 @@ import * as d3 from 'd3';
 import Slider from 'react-slider';
 import './slider.css';
 import { GraphData as OrignGraphData } from '@/app/(main)/page';
-import { names } from './../../.next/server/vendor-chunks/next';
 
 // Node 인터페이스 정의
 interface Node extends d3.SimulationNodeDatum {
