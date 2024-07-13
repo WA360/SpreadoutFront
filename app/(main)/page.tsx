@@ -97,23 +97,7 @@ const Page = () => {
       });
       const data = response.data;
 
-      // GraphData 형식으로 변환
-      const nodes = data.node.map((node: any) => ({
-        id: node.id,
-        name: node.name,
-        page: node.start_page,
-        level: node.level,
-        bookmarked: node.bookmarked,
-      }));
-
-      const links = data.connection.map((conn: any) => ({
-        id: conn.id,
-        source: conn.source_id,
-        target: conn.target_id,
-        value: conn.similarity,
-      }));
-
-      setGraphData({ nodes, links });
+      setGraphData(data);
 
       // PDF URL 추출
       const pdfUrl = data.url;

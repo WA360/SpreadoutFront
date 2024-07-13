@@ -143,7 +143,7 @@ const LeftAside = () => {
             {file.filename}
             {selectedPdfId === file.id && pdfData && (
               <ul className="toc-list">
-                {pdfData.node.map(
+                {pdfData.nodes.map(
                   (node: { id: number; name: string; start_page: number }) => (
                     <li
                       key={node.id}

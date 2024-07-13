@@ -17,16 +17,13 @@ const Chat: React.FC = () => {
   ): Promise<ReadableStream<Uint8Array>> => {
     if (!isEnd) return new ReadableStream<Uint8Array>();
 
-    const response = await fetch(
-      'https://1b51-118-34-210-22.ngrok-free.app/question/bedrock',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ question }),
+    const response = await fetch('http://3.38.176.179:8100/question/bedrock', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    );
+      body: JSON.stringify({ question }),
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
