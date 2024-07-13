@@ -2,7 +2,6 @@ import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import Slider from 'react-slider';
 import './slider.css';
-import { set } from 'zod';
 
 // Node 인터페이스 정의
 interface Node extends d3.SimulationNodeDatum {
@@ -33,6 +32,11 @@ interface Data {
   links: Link[];
 }
 
+interface GraphProps {
+  data: Data;
+  onNodeClick: (node: Node) => void;
+}
+
 // 데이터 변환 함수
 const transformData = (data: any): Data => {
   const nodes: Node[] = data.nodes.map((node: any) => ({
@@ -43,21 +47,25 @@ const transformData = (data: any): Data => {
   }));
 
   const links: Link[] = data.links
-    .map((link: any) => ({
-      ...link,
-      id: String(link.id),
-      source: String(link.source),
-      target: String(link.target),
-    }))
     .filter((link: any) => {
-      const sourceExists = nodes.find((node) => node.id === link.source);
-      const targetExists = nodes.find((node) => node.id === link.target);
+      const sourceExists = nodes.find(
+        (node) => node.id === String(link.source),
+      );
+      const targetExists = nodes.find(
+        (node) => node.id === String(link.target),
+      );
       if (!sourceExists)
         console.warn(`Node not found for source: ${link.source}`);
       if (!targetExists)
         console.warn(`Node not found for target: ${link.target}`);
       return sourceExists && targetExists;
-    });
+    })
+    .map((link: any) => ({
+      ...link,
+      id: String(link.id),
+      source: String(link.source),
+      target: String(link.target),
+    }));
 
   return { nodes, links };
 };
@@ -101,174 +109,120 @@ const getNodeSize = (level: string): number => {
   }
 };
 
-const Graph: React.FC<any> = ({ data, onNodeClick }) => {
+const Graph: React.FC<GraphProps> = ({ data, onNodeClick }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const [level, setLevel] = useState<number>(3);
-  const [useData, setUseData] = useState<Data>(data);
-  const [nodes, setNodes] = useState<Node[]>(data.nodes);
-  const [links, setLinks] = useState<Link[]>([data.links]);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-
+  const [transformedData, setTransformedData] = useState<Data>({
+    nodes: [],
+    links: [],
+  });
 
   useEffect(() => {
-    console.log();
-    if (svgRef.current) {
-      const width = 600;
-      const height = 800;
+    setTransformedData(transformData(data));
+  }, [data]);
 
-      // 노드의 색상을 결정하는 스케일 함수 정의
-      const color = d3.scaleOrdinal(d3.schemeCategory10);
+  useEffect(() => {
+    if (!svgRef.current || transformedData.nodes.length === 0) return;
 
-      // 데이터 변환 및 준비
-      const { nodes, links } = transformData(data);
+    const width = 600;
+    const height = 800;
 
-      if (svgRef.current) {
-        // 힘 시뮬레이션 설정
-        const simulation: d3.Simulation<Node, Link> = d3
-          .forceSimulation<Node, Link>(nodes)
-          .force(
-            'link',
-            d3.forceLink<Node, Link>(links).id((d: Node) => d.id),
-          )
-          .force('charge', d3.forceManyBody<Node>())
-          .force('x', d3.forceX<Node>())
-          .force('y', d3.forceY<Node>());
+    const color = d3.scaleOrdinal(d3.schemeCategory10);
 
-        // 초기 줌 상태 설정
-        const initialZoom = 1; // 초기 줌 레벨을 1로 설정 (필요에 따라 조정 가능)
+    const simulation: d3.Simulation<Node, Link> = d3
+      .forceSimulation<Node>(transformedData.nodes)
+      .force(
+        'link',
+        d3.forceLink<Node, Link>(transformedData.links).id((d: Node) => d.id),
+      )
+      .force('charge', d3.forceManyBody<Node>())
+      .force('x', d3.forceX<Node>())
+      .force('y', d3.forceY<Node>());
 
-        const updateTextVisibility = (zoomLevel: number) => {
-          d3.select(svgRef.current)
-            .selectAll('text')
-            .style('font-size', `${Math.max(12 / zoomLevel, 2)}px`)
-            .style('display', zoomLevel > 3 ? 'block' : 'none');
-        };
+    const svg = d3
+      .select(svgRef.current)
+      .attr('width', width)
+      .attr('height', height)
+      .attr('viewBox', [-width / 2, -height / 2, width, height]);
 
-        const zoom = d3
-          .zoom<SVGSVGElement, unknown>()
-          .scaleExtent([0.6, 5]) // 줌 스케일 범위 설정 (60% ~ 300%)
-          .on('zoom', (event) => {
-            if (!svgRef.current) return;
-            // 줌 이벤트에 따라 SVG 그룹 요소 변환
-            d3.select(svgRef.current)
-              .select('g')
-              .attr('transform', event.transform);
-            updateTextVisibility(event.transform.k);
-          });
+    svg.selectAll('*').remove(); // Clear previous render
 
-        // SVG 요소 생성 및 설정
-        const svg = d3
-          .select(svgRef.current)
-          .attr('width', width)
-          .attr('height', height)
-          .attr('viewBox', [-width / 2, -height / 2, width, height])
-          .attr('style', 'max-width: 100%; height: auto;')
-          .call(zoom)
-          .call(zoom.transform, d3.zoomIdentity.scale(initialZoom)) // 초기 줌 상태 적용
-          .append('g');
+    const g = svg.append('g');
 
-        // 링크(선) 요소 생성
-        const link = svg
-          .append('g')
-          .attr('stroke', '#999')
-          .attr('stroke-opacity', 0.6)
-          .selectAll('line')
-          .data(links)
-          .join('line')
-          .attr('stroke-width', 2);
+    const zoom = d3
+      .zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.6, 6])
+      .on('zoom', (event) => {
+        g.attr('transform', event.transform);
+        updateTextVisibility(event.transform.k);
+      });
 
-        // 노드(원) 요소 생성
-        const node = svg
-          .append('g')
-          .attr('stroke', '#fff')
-          .attr('stroke-width', 1.5)
-          .selectAll<SVGCircleElement, Node>('circle')
-          .data(nodes)
-          .join('circle')
-          .attr('r', (d) => getNodeSize(d.level))
-          .attr('fill', (d) => color(d.level));
+    svg.call(zoom);
 
-        // 노드에 타이틀(툴팁) 추가
-        node.append('title').text((d) => d.id);
+    const link = g
+      .append('g')
+      .attr('stroke', '#999')
+      .attr('stroke-opacity', 0.6)
+      .selectAll('line')
+      .data(transformedData.links)
+      .join('line')
+      .attr('stroke-width', 2);
 
-        // 텍스트 라벨 생성
-        const text = svg
-          .append('g')
-          .selectAll('text')
-          .data(nodes)
-          .join('text')
-          .attr('x', 10)
-          .attr('y', '0.31em')
-          .style('font-size', '12px')
-          .text((d) => d.name);
+    const node = g
+      .append('g')
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 1.5)
+      .selectAll<SVGCircleElement, Node>('circle')
+      .data(transformedData.nodes)
+      .join('circle')
+      .attr('r', (d) => getNodeSize(d.level))
+      .attr('fill', (d) => color(d.level))
+      .on('click', (event, d) => onNodeClick(d))
+      .call(
+        d3
+          .drag<SVGCircleElement, Node>()
+          .on('start', (event) => dragstarted(event, simulation))
+          .on('drag', dragged)
+          .on('end', (event) => dragended(event, simulation)),
+      );
 
-        // 초기 텍스트 가시성 설정
-        updateTextVisibility(initialZoom);
+    node.append('title').text((d) => d.id);
 
-        node.call(
-          d3
-            .drag<SVGCircleElement, Node>()
-            .on('start', (event) => dragstarted(event, simulation))
-            .on('drag', dragged)
-            .on('end', (event) => dragended(event, simulation)),
-        );
+    const text = g
+      .append('g')
+      .selectAll('text')
+      .data(transformedData.nodes)
+      .join('text')
+      .attr('x', 12)
+      .attr('y', '0.31em')
+      .style('font-size', '16px')
+      .text((d) => d.name);
 
-        // 시뮬레이션 틱 이벤트 처리 (매 프레임마다 요소 위치 업데이트)
-        simulation.on('tick', () => {
-          link
-            .attr('x1', (d) =>
-              typeof d.source === 'string' ? 0 : (d.source as Node).x!,
-            )
-            .attr('y1', (d) =>
-              typeof d.source === 'string' ? 0 : (d.source as Node).y!,
-            )
-            .attr('x2', (d) =>
-              typeof d.target === 'string' ? 0 : (d.target as Node).x!,
-            )
-            .attr('y2', (d) =>
-              typeof d.target === 'string' ? 0 : (d.target as Node).y!,
-            );
+    const updateTextVisibility = (zoomLevel: number) => {
+      text
+        .style('font-size', `${Math.max(12 / zoomLevel, 2)}px`)
+        .style('display', zoomLevel > 3 ? 'block' : 'none');
+    };
 
-          node.attr('cx', (d) => d.x!).attr('cy', (d) => d.y!);
-          text.attr('x', (d) => d.x!).attr('y', (d) => d.y!);
-        });
+    simulation.on('tick', () => {
+      link
+        .attr('x1', (d) => (d.source as Node).x!)
+        .attr('y1', (d) => (d.source as Node).y!)
+        .attr('x2', (d) => (d.target as Node).x!)
+        .attr('y2', (d) => (d.target as Node).y!);
 
-        // 컴포넌트 언마운트 시 시뮬레이션 정지
-        return () => {
-          simulation.stop();
-        };
-      }
-    }
-  }, [data, useData]);
+      node.attr('cx', (d) => d.x!).attr('cy', (d) => d.y!);
+
+      text.attr('x', (d) => d.x!).attr('y', (d) => d.y!);
+    });
+
+    return () => {
+      simulation.stop();
+    };
+  }, [transformedData, onNodeClick]);
 
   return (
-    <div className="w-[600px] flex-shrink-0">
-      <input
-        type="text"
-        placeholder="Search nodes"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="search-input"
-      />
-      <Slider
-        value={level}
-        onChange={setLevel}
-        min={1}
-        max={3}
-        step={1}
-        renderThumb={(props, state) => {
-          const { key, ...restProps } = props;
-          return (
-            <div key={key} {...restProps}>
-              {state.valueNow}
-            </div>
-          );
-        }}
-        className="my-slider"
-        thumbClassName="slider-thumb"
-        trackClassName="slider-track"
-      />
-      <svg ref={svgRef} className="w-[800px]"></svg>
+    <div>
+      <svg ref={svgRef}></svg>
     </div>
   );
 };
