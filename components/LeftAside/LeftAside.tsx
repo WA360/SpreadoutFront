@@ -19,7 +19,7 @@ const LeftAside = () => {
     [],
   );
   const [pdfData, setPdfData] = useState<any>(null);
-
+////////////////////////////////////////////////////////////////////////////////////////
   const getCookieValue = (name: string) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -42,7 +42,7 @@ const LeftAside = () => {
     }
   };
 
-  const uploadPdfFile = async (file: File) => {
+  const uploadPdfFile = async (file: File) => { // server에서 form으로 파일을 직접 받을 수 없어서 일단 여기 만듦. 추후 base64로 인코딩해서 서버사이드에서 처리 요망
     try {
       const uuid = await getUserUUID();
       const formData = new FormData();
@@ -59,11 +59,11 @@ const LeftAside = () => {
       throw error;
     }
   };
-
+////////////////////////////////////////////////////////////////////////////////////////
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setPdfFile(file);
+      setPdfFile(file); // pdf 파일 저장
 
       try {
         await uploadPdfFile(file);
