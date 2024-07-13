@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import Slider from 'react-slider';
 import './slider.css';
 import { GraphData as OrignGraphData } from '@/app/(main)/page';
+import { names } from './../../.next/server/vendor-chunks/next';
 
 // Node 인터페이스 정의
 interface Node extends d3.SimulationNodeDatum {
@@ -196,12 +197,13 @@ const Graph: React.FC<GraphProps> = ({ data, handleNodeClick }) => {
       .attr('x', 12)
       .attr('y', '0.31em')
       .style('font-size', '16px')
+      .style('display', 'none')
       .text((d) => d.name);
 
     const updateTextVisibility = (zoomLevel: number) => {
       text
         .style('font-size', `${Math.max(12 / zoomLevel, 2)}px`)
-        .style('display', zoomLevel > 3 ? 'block' : 'none');
+        .style('display', zoomLevel < 3 ? 'none' : 'block');
     };
 
     simulation.on('tick', () => {
