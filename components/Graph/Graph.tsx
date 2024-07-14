@@ -199,6 +199,33 @@ const Graph: React.FC<GraphProps> = ({
   }, [data]);
 
   useEffect(() => {
+    // 그룹별로 노드 분류 및 초기 위치 설정
+    const groupedNodes = d3.group(transformedData.nodes, (d) => d.group);
+    const groups = Array.from(groupedNodes.keys());
+    const width = 600;
+    const height = 800;
+
+    // 그룹 위치 계산
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = Math.min(width, height) / 3;
+
+    groups.forEach((group, index) => {
+      const angle = (index / groups.length) * 2 * Math.PI;
+      const groupX = centerX + radius * Math.cos(angle);
+      const groupY = centerY + radius * Math.sin(angle);
+
+      const groupNodes = groupedNodes.get(group) || [];
+      groupNodes.forEach((node, i) => {
+        const nodeRadius = 50 + i * 20;
+        const nodeAngle = angle + ((i / groupNodes.length) * Math.PI) / 2;
+        node.x = groupX + nodeRadius * Math.cos(nodeAngle);
+        node.y = groupY + nodeRadius * Math.sin(nodeAngle);
+      });
+    });
+  }, [transformedData]);
+
+  useEffect(() => {
     if (!svgRef.current || transformedData.nodes.length === 0) return;
 
     const width = 600;
