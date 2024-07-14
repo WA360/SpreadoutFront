@@ -19,7 +19,7 @@ interface TabData {
   title: string;
 }
 
-export interface origin_Node {
+export interface OriginNode {
   bookmarked: number;
   end_page: number;
   group: number;
@@ -30,7 +30,7 @@ export interface origin_Node {
   start_page: number;
 }
 
-export interface origin_Link {
+export interface OriginLink {
   id: number;
   pdf_file_id: number;
   similarity: number;
@@ -38,9 +38,27 @@ export interface origin_Link {
   target: number;
 }
 
-export interface GraphData {
-  nodes: origin_Node[];
-  links: origin_Link[];
+export interface OriginSessionNode {
+  id: number;
+  chapter_id: number;
+  name: string;
+  level: number;
+  user_id: number;
+}
+
+export interface OriginSessionLink {
+  id: number;
+  pdf_file_id: number;
+  similarity: number;
+  source: number;
+  target: number;
+}
+
+export interface OriginGraphData {
+  nodes: OriginNode[];
+  links: OriginLink[];
+  session_nodes: OriginSessionNode[];
+  session_links: OriginSessionLink[];
 }
 
 const Page = () => {
@@ -61,7 +79,7 @@ const Page = () => {
   const [tabPageNumbers2, setTabPageNumbers2] = useState<{
     [key: string]: number;
   }>({ chat: 1 });
-  const [graphData, setGraphData] = useState<GraphData | null>(null);
+  const [graphData, setGraphData] = useState<OriginGraphData | null>(null);
 
   const addTab1 = (pageNumber: number) => {
     const newTabKey = `tab-${tabs1.length}`;
@@ -94,7 +112,7 @@ const Page = () => {
     setTabPageNumbers2(newTabPageNumbers);
   };
 
-  const fetchGraphData = async (pdfId: number) => {
+  const fetchGraphData = async (pdfId: number) => { // url, node, link 가져오는 함수
     try {
       const response = await axios.get(`http://3.38.176.179:4000/pdf`, {
         params: { pdfId },
@@ -167,7 +185,7 @@ const Page = () => {
                 <></>
               ) : (
                 <Graph
-                  data={graphData || { nodes: [], links: [] }}
+                  data={graphData || { nodes: [], links: [], session_nodes: [], session_links: [] }}
                   handleNodeClick={handleNodeClick}
                 />
               )
