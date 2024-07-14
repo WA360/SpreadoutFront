@@ -55,6 +55,7 @@ interface Data {
 interface GraphProps {
   data: OriginGraphData;
   handleNodeClick: (pageNumber: number) => void;
+  handleSessionNodeClick: (sessionId: number) => void;
 }
 
 // 데이터 변환 함수
@@ -180,7 +181,11 @@ const getNodeSize = (level: string): number => {
   }
 };
 
-const Graph: React.FC<GraphProps> = ({ data, handleNodeClick }) => {
+const Graph: React.FC<GraphProps> = ({
+  data,
+  handleNodeClick,
+  handleSessionNodeClick,
+}) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [transformedData, setTransformedData] = useState<Data>({
     nodes: [],
@@ -260,6 +265,9 @@ const Graph: React.FC<GraphProps> = ({ data, handleNodeClick }) => {
       .on('click', (event, d: Node | SessionNode) => {
         if ('start_page' in d) {
           handleNodeClick(Number(d.start_page));
+        } else if ('chapter_id' in d) {
+          // chapter_id의 존재로 세션노드 구분
+          handleSessionNodeClick(Number(d.id));
         }
       })
       .call(

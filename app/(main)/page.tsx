@@ -69,7 +69,7 @@ const Page = () => {
     { key: 'diagram', title: 'Diagram' }, // Diagram Tab은 미리 넣어준다.
   ]);
   const [activeTab1, setActiveTab1] = useState<number>(0); // Tabs1에서 현재 활성화 돼있는 탭을 구분하기 위한 상태
-  // Tabs1에 속한 Tab들의 번호를 설정해주기 위한 상태
+  // Tabs1에 속한 Tab마다 pageNumber를 설정해주기 위한 상태
   const [tabPageNumbers1, setTabPageNumbers1] = useState<{
     [key: string]: number;
   }>({ diagram: 1 });
@@ -148,9 +148,16 @@ const Page = () => {
 
   const handleNodeClick = async (pageNumber: number) => { // 노드 클릭하면 해당하는 pdf뷰어 탭 추가되는 함수
     const newTabKey = `tab-${tabs1.length}`; // 새 Tab 키 생성
-    setTabs1([...tabs1, { key: newTabKey, title: `Page ${pageNumber}` }]); // 새 Tab 추가
+    setTabs1([...tabs1, { key: newTabKey, title: `Page ${pageNumber}` }]); // Tabs1에 새 Tab 추가
     setActiveTab1(tabs1.length); // 해당 Tab 활성화
     setTabPageNumbers1({ ...tabPageNumbers1, [newTabKey]: pageNumber }); // 해당 Tab pdfReader에 pageNumber 전달
+  };
+
+  const handleSessionNodeClick = async (sessionId: number) => {
+    const newTabKey = `session-tab-${tabs2.length}`; // 새 Tab 키 생성
+    setTabs2([...tabs2, { key: newTabKey, title: `Session ${sessionId}` }]); // Tabs2에 새 Tab 추가
+    setActiveTab2(tabs2.length); // 해당 Tab 활성화
+    setTabPageNumbers2({ ...tabPageNumbers2, [newTabKey]: sessionId }); // 해당 Tab에 sessionId 전달
   };
 
   useEffect(() => {
@@ -192,6 +199,7 @@ const Page = () => {
                 <Graph
                   data={graphData || { nodes: [], links: [], session_nodes: [], session_links: [] }}
                   handleNodeClick={handleNodeClick}
+                  handleSessionNodeClick={handleSessionNodeClick}
                 />
               )
             ) : (
@@ -231,6 +239,7 @@ const Page = () => {
                 <h3 className="absolute top-1 right-4 z-10">
                   Tab Number: {tabs2.findIndex((t) => t.key === tab.key)}
                 </h3>
+                <Chat sessionId={tabPageNumbers2[tab.key]} /> {/* 세션 ID 전달 */}
               </div>
             )}
           </TabPanel>

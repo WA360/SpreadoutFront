@@ -5,7 +5,11 @@ interface Message {
   isUser: boolean;
 }
 
-const Chat: React.FC = () => {
+interface ChatProps {
+  sessionId?: number;
+}
+
+const Chat: React.FC<ChatProps> = ({ sessionId }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
