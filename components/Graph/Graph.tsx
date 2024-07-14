@@ -68,11 +68,13 @@ const transformData = (data: any): Data => {
   }));
 
   // 세션노드 변환
-  const session_nodes: SessionNode[] = data.session_nodes.map((session_node: any) => ({
-    ...session_node,
-    id: String(session_node.id), // id를 string으로 변환
-    level: String(session_node.level),
-  }));
+  const session_nodes: SessionNode[] = data.session_nodes.map(
+    (session_node: any) => ({
+      ...session_node,
+      id: String(session_node.id), // id를 string으로 변환
+      level: String(session_node.level),
+    }),
+  );
 
   // 챕터 링크 변환
   const links: Link[] = data.links
@@ -99,14 +101,18 @@ const transformData = (data: any): Data => {
   // 세션 링크 변환
   const session_links: SessionLink[] = data.session_links
     .filter((session_link: any) => {
-      const sourceExists = session_nodes.find( // source에 세션노드
+      const sourceExists = session_nodes.find(
+        // source에 세션노드
         (session_node) => session_node.id === String(session_link.source),
       );
-      const targetExists = nodes.find( // target에 챕터노드
+      const targetExists = nodes.find(
+        // target에 챕터노드
         (node) => node.id === String(session_link.target),
       );
       if (!sourceExists)
-        console.warn(`SessionNode not found for source: ${session_link.source}`);
+        console.warn(
+          `SessionNode not found for source: ${session_link.source}`,
+        );
       if (!targetExists)
         console.warn(`Node not found for target: ${session_link.target}`);
       return sourceExists && targetExists;
@@ -122,7 +128,11 @@ const transformData = (data: any): Data => {
 };
 
 const dragstarted = (
-  event: d3.D3DragEvent<SVGCircleElement, Node | SessionNode, Node | SessionNode>,
+  event: d3.D3DragEvent<
+    SVGCircleElement,
+    Node | SessionNode,
+    Node | SessionNode
+  >,
   simulation: d3.Simulation<Node | SessionNode, Link | SessionLink>,
 ) => {
   if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -130,13 +140,23 @@ const dragstarted = (
   event.subject.fy = event.subject.y;
 };
 
-const dragged = (event: d3.D3DragEvent<SVGCircleElement, Node | SessionNode, Node | SessionNode>) => {
+const dragged = (
+  event: d3.D3DragEvent<
+    SVGCircleElement,
+    Node | SessionNode,
+    Node | SessionNode
+  >,
+) => {
   event.subject.fx = event.x;
   event.subject.fy = event.y;
 };
 
 const dragended = (
-  event: d3.D3DragEvent<SVGCircleElement, Node | SessionNode, Node | SessionNode>,
+  event: d3.D3DragEvent<
+    SVGCircleElement,
+    Node | SessionNode,
+    Node | SessionNode
+  >,
   simulation: d3.Simulation<Node | SessionNode, Link | SessionLink>,
 ) => {
   if (!event.active) simulation.alphaTarget(0);
@@ -156,7 +176,7 @@ const getNodeSize = (level: string): number => {
     case '4':
       return 3;
     default:
-      return 1; // 기본 크기
+      return 5; // 기본 크기
   }
 };
 
@@ -182,10 +202,17 @@ const Graph: React.FC<GraphProps> = ({ data, handleNodeClick }) => {
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
     const simulation: d3.Simulation<Node | SessionNode, Link | SessionLink> = d3
-      .forceSimulation<Node | SessionNode>([...transformedData.nodes, ...transformedData.session_nodes]) // 세션 노드 추가
+      .forceSimulation<Node | SessionNode>([
+        ...transformedData.nodes,
+        ...transformedData.session_nodes,
+      ]) // 세션 노드 추가
       .force(
         'link',
-        d3.forceLink<Node | SessionNode, Link | SessionLink>([...transformedData.links, ...transformedData.session_links])
+        d3
+          .forceLink<
+            Node | SessionNode,
+            Link | SessionLink
+          >([...transformedData.links, ...transformedData.session_links])
           .id((d: Node | SessionNode) => d.id),
       )
       .force('charge', d3.forceManyBody<Node | SessionNode>())
@@ -269,9 +296,13 @@ const Graph: React.FC<GraphProps> = ({ data, handleNodeClick }) => {
         .attr('x2', (d) => (d.target as Node | SessionNode).x!)
         .attr('y2', (d) => (d.target as Node | SessionNode).y!);
 
-      node.attr('cx', (d) => (d as Node | SessionNode).x!).attr('cy', (d) => (d as Node | SessionNode).y!);
+      node
+        .attr('cx', (d) => (d as Node | SessionNode).x!)
+        .attr('cy', (d) => (d as Node | SessionNode).y!);
 
-      text.attr('x', (d) => (d as Node | SessionNode).x!).attr('y', (d) => (d as Node | SessionNode).y!);
+      text
+        .attr('x', (d) => (d as Node | SessionNode).x!)
+        .attr('y', (d) => (d as Node | SessionNode).y!);
     });
 
     return () => {
