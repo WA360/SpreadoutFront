@@ -156,7 +156,10 @@ const Page = () => {
     setTabs1((prevTabs) => {
       const newTabKey = `tab-${prevTabs.length}`; // prevTabs.length를 사용하여 새로운 탭 키 생성
       console.log(newTabKey); // 새 탭 키 출력
-      const newTabs = [...prevTabs, { key: newTabKey, title: `Page ${pageNumber}` }]; // 이전 탭 배열에 새 탭 추가
+      const newTabs = [
+        ...prevTabs,
+        { key: newTabKey, title: `Page ${pageNumber}` },
+      ]; // 이전 탭 배열에 새 탭 추가
       setActiveTab1(newTabs.length - 1); // 새로 추가된 탭을 활성화
       setTabPageNumbers((prevTabPageNumbers) => ({
         ...prevTabPageNumbers,
@@ -165,13 +168,15 @@ const Page = () => {
       return newTabs; // 새 탭 배열 반환
     });
   };
-  
 
   const handleSessionNodeClick = async (sessionId: number) => {
     setTabs2((prevTabs) => {
       const newTabKey = `session-tab-${prevTabs.length}`; // prevTabs.length를 사용하여 새로운 탭 키 생성
       console.log(newTabKey); // 새 탭 키 출력
-      const newTabs = [...prevTabs, { key: newTabKey, title: `Session ${sessionId}` }]; // 이전 탭 배열에 새 탭 추가
+      const newTabs = [
+        ...prevTabs,
+        { key: newTabKey, title: `Session ${sessionId}` },
+      ]; // 이전 탭 배열에 새 탭 추가
       setActiveTab2(newTabs.length - 1); // 새로 추가된 탭을 활성화
       setTabSessionNumbers((prevTabSessionNumbers) => ({
         ...prevTabSessionNumbers,
@@ -180,7 +185,6 @@ const Page = () => {
       return newTabs; // 새 탭 배열 반환
     });
   };
-  
 
   useEffect(() => {
     if (selectedPdfId !== null) {

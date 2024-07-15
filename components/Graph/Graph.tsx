@@ -193,6 +193,8 @@ const Graph: React.FC<GraphProps> = ({
     session_nodes: [],
     session_links: [],
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Node[]>([]);
 
   useEffect(() => {
     setTransformedData(transformData(data));
@@ -345,8 +347,33 @@ const Graph: React.FC<GraphProps> = ({
     };
   }, [transformedData]);
 
+  const handleSearch = async () => {
+    const response = await fetch('/api/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query: searchQuery }),
+    });
+    const result = await response.json();
+    const chapterIds = result.map((item: any) => item.chapterId);
+
+    const filteredNodes = transformedData.nodes.filter((node) =>
+      chapterIds.includes(Number(node.id)),
+    );
+    setSearchResults(filteredNodes);
+  };
+
   return (
     <div>
+      <div>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <button onClick={handleSearch}>검색</button>
+      </div>
       <svg ref={svgRef}></svg>
     </div>
   );
