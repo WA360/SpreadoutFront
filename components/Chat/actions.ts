@@ -1,35 +1,86 @@
-// 'use server';
+'use server';
 
-// import { Readable } from 'stream';
+import axios from 'axios';
+import { cookies } from 'next/headers';
 
-// export async function sendMessage(question: string): Promise<ReadableStream> {
-//   const response = await fetch(
-//     'https://1b51-118-34-210-22.ngrok-free.app/question/bedrock',
-//     {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({ question }),
-//     }
-//   );
+interface Message {
+  text: string;
+  isUser: boolean;
+}
 
-//   if (!response.ok) {
-//     throw new Error(`HTTP error! status: ${response.status}`);
-//   }
+export const getMessages = async (sessionId: number): Promise<Message[]> => {
+  if (!sessionId) return [];
 
-//   // 서버의 응답을 ReadableStream으로 변환
-//   const stream = new ReadableStream({
-//     async start(controller) {
-//       const reader = response.body!.getReader();
-//       while (true) {
-//         const { done, value } = await reader.read();
-//         if (done) break;
-//         controller.enqueue(value);
-//       }
-//       controller.close();
-//     },
-//   });
+  const token = cookies().get('token');
+  const response = await axios.get(
+    'http://3.38.176.179:4000/bot/session/detail',
+    {
+      params: { chapterId: sessionId },
+      headers: {
+        token: `${token?.value}`,
+      },
+    },
+  );
+  console.log(response.data.message);
+  console.log(response.data.message[0].content);
 
-//   return stream;
-// }
+  const pattern = /<<(\w+)>>(.*?)(?=<<|$)/g;
+  let match;
+  const data = [];
+
+  while ((match = pattern.exec(response.data.message[0].content)) !== null) {
+    const userType = match[1] === 'user';
+    const text = match[2];
+
+    data.unshift({ isUser: userType, text: text.trim() });
+  }
+
+  return data;
+};
+
+export const saveMessage = async (
+  sessionId: number,
+  messages: Message,
+): Promise<void> => {
+  if (!sessionId) return;
+  console.log('messages', messages);
+
+  try {
+    const response = await axios.put(
+      `http://your-api-endpoint/sessions/${sessionId}/messages`,
+      {
+        content: message.text,
+        chapterId: sessionId, // chapterId로 키가 잘못 설정됨
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    if (response.status !== 200) {
+      throw new Error('Failed to save message');
+    }
+  } catch (error) {
+    console.error('Error saving message:', error);
+  }
+};
+
+export const sendMessage = async (
+  question: string,
+): Promise<ReadableStream<Uint8Array>> => {
+  const response = await fetch('http://3.38.176.179:8100/question/bedrock', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ question }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.body!;
+};

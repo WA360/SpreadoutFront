@@ -38,3 +38,5 @@ export const selectedTocState = atom<{ id: number; startPage: number } | null>({
   key: 'selectedTocState',
   default: null,
 });
+
+// 채팅에서 받아온 data

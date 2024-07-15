@@ -4,6 +4,7 @@ import React from 'react';
 import { ReactNode, useEffect, useState } from 'react';
 import { RecoilRoot } from 'recoil';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools/build/modern/production.js';
 
 const queryClient = new QueryClient();
 
@@ -23,7 +24,7 @@ export default function Providers({ children }: { children: ReactNode }) {
   }, []);
   return (
     <QueryClientProvider client={queryClient}>
-      {/* <ReactQueryDevtools initialIsOpen /> */}
+      <ReactQueryDevtools initialIsOpen />
       {showDevtools && (
         <React.Suspense fallback={null}>
           <ReactQueryDevtoolsProduction />

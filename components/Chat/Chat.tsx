@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { getMessages, saveMessage, sendMessage } from './actions'; // actions.ts 파일에서 함수들을 가져옵니다.
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface Message {
   text: string;
@@ -6,7 +8,7 @@ interface Message {
 }
 
 interface ChatProps {
-  sessionId?: number;
+  sessionId: number;
 }
 
 const Chat: React.FC<ChatProps> = ({ sessionId }) => {
@@ -15,33 +17,42 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isEnd, setIsEnd] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
 
-  const sendMessage = async (
-    question: string,
-  ): Promise<ReadableStream<Uint8Array>> => {
-    if (!isEnd) return new ReadableStream<Uint8Array>();
+  // React Query를 사용하여 메시지 가져오기
+  const { data: server_messages = [] } = useQuery<Message[]>({
+    queryKey: ['server_messages', sessionId],
+    queryFn: () => getMessages(sessionId!),
+    enabled: !!sessionId,
+  });
 
-    const response = await fetch('http://3.38.176.179:8100/question/bedrock', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ question }),
-    });
+  useEffect(() => {
+    setMessages(server_messages);
+  }, [server_messages]);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.body!;
-  };
+  // 메시지 저장을 위한 뮤테이션
+  const saveMutation = useMutation({
+    mutationFn: ({
+      sessionId,
+      message,
+    }: {
+      sessionId: number;
+      message: Message;
+    }) => saveMessage(sessionId, message),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['server_messages', sessionId],
+      });
+    },
+  });
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputMessage.trim() || isLoading) return;
 
     setIsLoading(true);
-    setMessages((prev) => [{ text: inputMessage, isUser: true }, ...prev]);
+    const userMessage: Message = { text: inputMessage, isUser: true };
+    setMessages((prev) => [userMessage, ...prev]);
     setInputMessage('');
     setIsEnd(false);
 
@@ -66,27 +77,30 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
         setMessages((prev) => {
           const newMessages = [...prev];
           if (newMessages.length > 0 && newMessages[0].isUser) {
-            // 기존 메시지가 사용자 메시지인 경우 새로운 메시지를 앞에 추가
             newMessages.unshift({ text: aiMessage, isUser: false });
           } else if (newMessages.length > 0) {
-            // 기존 메시지가 AI 메시지인 경우 메시지를 교체
             newMessages[0] = {
               text: aiMessage,
               isUser: false,
             };
           } else {
-            // 배열이 비어 있는 경우 새로운 메시지를 추가
             newMessages.push({ text: aiMessage, isUser: false });
           }
           return newMessages;
         });
       }
+
+      console.log('messages', messages);
+
+      saveMutation.mutate({ sessionId: sessionId, messages: messages });
     } catch (error) {
       console.error('Error:', error);
-      setMessages((prev) => [
-        ...prev,
-        { text: '메시지 전송 중 오류가 발생했습니다.', isUser: false },
-      ]);
+      const errorMessage: Message = {
+        text: '메시지 전송 중 오류가 발생했습니다.',
+        isUser: false,
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+      await saveMessage(sessionId!, errorMessage); // 오류 메시지 저장
       setIsEnd(true);
     } finally {
       setIsLoading(false);
