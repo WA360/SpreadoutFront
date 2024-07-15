@@ -1,8 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-import Slider from 'react-slider';
-import './slider.css';
 import { OriginGraphData } from '@/app/(main)/page';
+// 검색 노드에 펄스효과를 주기 위한 기능
+import '@/app/globals.css';
 
 // Node 인터페이스 정의
 interface Node extends d3.SimulationNodeDatum {
@@ -290,7 +290,12 @@ const Graph: React.FC<GraphProps> = ({
       .data([...transformedData.nodes, ...transformedData.session_nodes]) // 세션 노드 추가
       .join('circle')
       .attr('r', (d) => getNodeSize((d as Node).level)) // Node와 SessionNode 모두 처리
-      .attr('fill', (d) => color((d as Node).level)) // Node와 SessionNode 모두 처리
+      .attr('fill', (d) =>
+        searchResults.includes(d as Node)
+          ? color((d as Node).level)
+          : color((d as Node).level),
+      )
+      .attr('class', (d) => (searchResults.includes(d as Node) ? 'pulse' : '')) // 검색된 노드에 펄스 애니메이션
       .on('click', (event, d: Node | SessionNode) => {
         if ('start_page' in d) {
           handleNodeClick(Number(d.start_page));
@@ -345,22 +350,14 @@ const Graph: React.FC<GraphProps> = ({
     return () => {
       simulation.stop();
     };
-  }, [transformedData]);
+  }, [transformedData, searchResults]); // searchResults를 dependency로 추가
 
-  const handleSearch = async () => {
-    const response = await fetch('/api/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query: searchQuery }),
-    });
-    const result = await response.json();
-    const chapterIds = result.map((item: any) => item.chapterId);
-
+  const handleSearch = () => {
+    // 검색어를 포함하는 노드 필터링
     const filteredNodes = transformedData.nodes.filter((node) =>
-      chapterIds.includes(Number(node.id)),
+      node.name.toLowerCase().includes(searchQuery.toLowerCase()),
     );
+
     setSearchResults(filteredNodes);
   };
 
