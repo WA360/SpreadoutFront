@@ -83,7 +83,7 @@ const Page = () => {
   // Tabs2에 속한 Tab들의 SessionNumber를 설정해주기 위한 상태
   const [tabSessionNumbers, setTabSessionNumbers] = useState<{
     [key: string]: number;
-  }>({ chat: 1 });
+  }>({ chat: 0 });
 
   const [graphData, setGraphData] = useState<OriginGraphData | null>(null); // express서버에서 받아온 그래프 데이터가 담기는 상태
 
@@ -266,7 +266,7 @@ const Page = () => {
         {tabs2.map((tab) => (
           <TabPanel key={tab.key}>
             {tab.key === 'chat' ? (
-              <Chat />
+              <Chat sessionId={tabSessionNumbers[tab.key]} />
             ) : (
               <div className="relative tab-panel h-full">
                 <h3 className="absolute top-1 right-4 z-10">

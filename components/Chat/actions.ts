@@ -21,8 +21,6 @@ export const getMessages = async (sessionId: number): Promise<Message[]> => {
       },
     },
   );
-  console.log(response.data.message);
-  console.log(response.data.message[0].content);
 
   const pattern = /<<(\w+)>>(.*?)(?=<<|$)/g;
   let match;
@@ -40,21 +38,32 @@ export const getMessages = async (sessionId: number): Promise<Message[]> => {
 
 export const saveMessage = async (
   sessionId: number,
-  messages: Message,
+  messages: Message[],
 ): Promise<void> => {
   if (!sessionId) return;
-  console.log('messages', messages);
+  let result = messages
+    .reverse()
+    .map((item) => {
+      if (item.isUser) {
+        return `<<user>>${item.text}`;
+      } else {
+        return `<<bot>>${item.text}`;
+      }
+    })
+    .join('');
 
   try {
+    const token = cookies().get('token');
     const response = await axios.put(
-      `http://your-api-endpoint/sessions/${sessionId}/messages`,
+      `http://3.38.176.179:4000/bot/session/detail`,
       {
-        content: message.text,
-        chapterId: sessionId, // chapterId로 키가 잘못 설정됨
+        content: result,
+        chapterId: sessionId,
       },
       {
         headers: {
           'Content-Type': 'application/json',
+          token: `${token?.value}`,
         },
       },
     );
@@ -65,22 +74,4 @@ export const saveMessage = async (
   } catch (error) {
     console.error('Error saving message:', error);
   }
-};
-
-export const sendMessage = async (
-  question: string,
-): Promise<ReadableStream<Uint8Array>> => {
-  const response = await fetch('http://3.38.176.179:8100/question/bedrock', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ question }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-
-  return response.body!;
 };
