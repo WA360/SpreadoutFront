@@ -38,3 +38,37 @@
 .toc-item {
   padding: 4px 0; /* 각 목차 항목의 패딩 */
 }
+
+.file-info {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+
+.toc-toggle-button {
+  margin-top: 4px; /* 파일 제목과 토글 버튼 사이에 간격을 추가 */
+  padding: 4px 8px;
+  background-color: #4CAF50; /* 버튼 색상 */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.toc-toggle-button:hover {
+  background-color: #45a049; /* 버튼 호버 색상 */
+}
+
+.toc-list {
+  margin-top: 8px;
+  padding-left: 20px;
+}
+
+.toc-item {
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+
+.toc-item:hover {
+  text-decoration: underline;
+}

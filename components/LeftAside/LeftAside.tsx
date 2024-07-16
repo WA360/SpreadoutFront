@@ -19,7 +19,8 @@ const LeftAside = () => {
     [],
   );
   const [pdfData, setPdfData] = useState<any>(null);
-////////////////////////////////////////////////////////////////////////////////////////
+  const [isTocVisible, setIsTocVisible] = useState(true); // 목차 가시성 토글 상태
+  ////////////////////////////////////////////////////////////////////////////////////////
   const getCookieValue = (name: string) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -42,7 +43,8 @@ const LeftAside = () => {
     }
   };
 
-  const uploadPdfFile = async (file: File) => { // server에서 form으로 파일을 직접 받을 수 없어서 일단 여기 만듦. 추후 base64로 인코딩해서 서버사이드에서 처리 요망
+  const uploadPdfFile = async (file: File) => {
+    // server에서 form으로 파일을 직접 받을 수 없어서 일단 여기 만듦. 추후 base64로 인코딩해서 서버사이드에서 처리 요망
     try {
       const uuid = await getUserUUID();
       const formData = new FormData();
@@ -59,7 +61,7 @@ const LeftAside = () => {
       throw error;
     }
   };
-////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -114,6 +116,10 @@ const LeftAside = () => {
     setSelectedToc({ id, startPage }); // selectedToc 상태 업데이트
   };
 
+  const toggleTocVisibility = () => {
+    setIsTocVisible(!isTocVisible); // 목차 가시성 토글
+  };
+
   useEffect(() => {
     fetchPdfFiles();
   }, []);
@@ -122,7 +128,7 @@ const LeftAside = () => {
     <aside className="flex flex-col w-80 shrink-0 border-r p-2">
       <label
         htmlFor="file_upload"
-        className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md  cursor-pointer hover:bg-blue-700 transition-colors duration-300"
+        className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md cursor-pointer hover:bg-blue-700 transition-colors duration-300"
       >
         파일 업로드
       </label>
@@ -140,15 +146,27 @@ const LeftAside = () => {
             className="scrollable-list-item cursor-pointer"
             onClick={() => handlePdfClick(file.id)}
           >
-            {file.filename}
-            {selectedPdfId === file.id && pdfData && (
+            <div className="file-info">
+              <span>{file.filename}</span>
+              {selectedPdfId === file.id && (
+                <button
+                  className="toc-toggle-button"
+                  onClick={toggleTocVisibility}
+                >
+                  {isTocVisible ? 'Hide' : 'Show'} TOC
+                </button>
+              )}
+            </div>
+            {selectedPdfId === file.id && isTocVisible && pdfData && (
               <ul className="toc-list">
                 {pdfData.nodes.map(
                   (node: { id: number; name: string; start_page: number }) => (
                     <li
                       key={node.id}
                       className="toc-item"
-                      onClick={() => handleTocClick(node.id, node.start_page)} // 클릭 시 selectedToc 업데이트
+                      onClick={() =>
+                        handleTocClick(node.id, node.start_page)
+                      }
                     >
                       {node.name}
                     </li>

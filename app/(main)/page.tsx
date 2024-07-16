@@ -66,7 +66,7 @@ const Page = () => {
   const setPdfFile = useSetRecoilState(pdfFileState); // 현재 보고 있는 pdf파일의 전역상태 설정 함수
   const selectedToc = useRecoilValue(selectedTocState); // 현재 클릭한 챕터의 전역상태
   const [tabs1, setTabs1] = useState<TabData[]>([
-    // Tabs1에 소속된 Tab들의 정보가 들어있는 배열
+    // Tabs1에 소속된 Tab들의 정보가 들어있는 배열b
     { key: 'diagram', title: 'Diagram' }, // Diagram Tab은 미리 넣어준다.
   ]);
   const [activeTab1, setActiveTab1] = useState<number>(0); // Tabs1에서 현재 활성화 돼있는 탭을 구분하기 위한 상태
