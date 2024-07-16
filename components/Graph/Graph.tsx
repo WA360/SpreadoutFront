@@ -326,9 +326,29 @@ const Graph: React.FC<GraphProps> = ({
       .text((d) => d.name);
 
     const updateTextVisibility = (zoomLevel: number) => {
+      const levelVisibility = (level: string, zoomLevel: number) => {
+        switch (level) {
+          case '1':
+            return zoomLevel >= 0 ? 'block' : 'none';
+          case '2':
+            return zoomLevel >= 2 ? 'block' : 'none';
+          case '3':
+            return zoomLevel >= 4 ? 'block' : 'none';
+          case '4':
+            return zoomLevel >= 6 ? 'block' : 'none';
+          default:
+            return 'none';
+        }
+      };
+
       text
-        .style('font-size', `${Math.max(12 / zoomLevel, 2)}px`)
-        .style('display', zoomLevel < 3 ? 'none' : 'block');
+        .style(
+          'font-size',
+          (d: Node | SessionNode) => `${Math.max(12 / zoomLevel, 2)}px`,
+        )
+        .style('display', (d: Node | SessionNode) =>
+          levelVisibility((d as Node).level, zoomLevel),
+        );
     };
 
     simulation.on('tick', () => {
