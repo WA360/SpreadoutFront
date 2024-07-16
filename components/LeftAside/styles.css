@@ -48,7 +48,7 @@
 .toc-toggle-button {
   margin-top: 4px; /* 파일 제목과 토글 버튼 사이에 간격을 추가 */
   padding: 4px 8px;
-  background-color: #4CAF50; /* 버튼 색상 */
+  background-color: #4caf50; /* 버튼 색상 */
   color: white;
   border: none;
   border-radius: 4px;
@@ -70,5 +70,9 @@
 }
 
 .toc-item:hover {
-  text-decoration: underline;
+  background-color: #ffff00; /* 형광색 배경 */
+  color: #000000; /* 강조된 글씨 색상 */
+  font-weight: bold; /* 글씨 두껍게 */
+  border-radius: 4px; /* 둥근 모서리 */
+  padding: 2px 4px; /* 여백 추가 */
 }

@@ -304,6 +304,19 @@ const Graph: React.FC<GraphProps> = ({
           handleSessionNodeClick(Number(d.id));
         }
       })
+      .on('mouseover', (event, d: Node | SessionNode) => {
+        d3.select(event.currentTarget)
+          .classed('node-highlight', true); // 노드 강조 클래스 추가
+        const text = svg.selectAll('text')
+          .filter((node) => node === d);
+        text.style('display', 'block'); // 제목 강조 표시
+      })
+      .on('mouseout', (event) => {
+        d3.select(event.currentTarget)
+          .classed('node-highlight', false); // 노드 강조 클래스 제거
+        svg.selectAll('text')
+          .style('display', 'none'); // 제목 강조 제거
+      })
       .call(
         d3
           .drag<SVGCircleElement, Node | SessionNode>()
@@ -319,6 +332,7 @@ const Graph: React.FC<GraphProps> = ({
       .selectAll('text')
       .data([...transformedData.nodes, ...transformedData.session_nodes]) // 세션 노드 추가
       .join('text')
+      .attr('class', 'node-title') // 제목 클래스 추가
       .attr('x', 12)
       .attr('y', '0.31em')
       .style('font-size', '16px')

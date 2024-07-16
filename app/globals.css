@@ -58,3 +58,17 @@ text {
   animation: pulse 1.5s infinite;
   stroke: #f0f;
 }
+
+.node-highlight {
+  stroke: #00ccff; /* 노드 외곽선 색상 */
+  stroke-width: 3px; /* 외곽선 두께 */
+  fill: #ff0; /* 강조 색상 */
+  transition: fill 0.3s, stroke 0.3s; /* 색상 변화 애니메이션 */
+}
+
+.node-title {
+  font-size: 16px;
+  font-weight: bold;
+  pointer-events: none; /* 마우스 이벤트 방지 */
+  text-anchor: middle;
+}
