@@ -37,13 +37,16 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
   ): Promise<ReadableStream<Uint8Array>> => {
     if (!isEnd) return new ReadableStream<Uint8Array>();
 
-    const response = await fetch('http://3.38.176.179:8100/question/bedrock', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await fetch(
+      'http://3.38.176.179:8100/question/langchain',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question: question, fileNum: 3, fileName: "fileName" }),
       },
-      body: JSON.stringify({ question }),
-    });
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
