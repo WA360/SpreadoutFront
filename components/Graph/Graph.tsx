@@ -195,6 +195,26 @@ const Graph: React.FC<GraphProps> = ({
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Node[]>([]);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (svgRef.current) {
+        setDimensions({
+          width: svgRef.current.parentElement!.parentElement!.clientWidth,
+          height: svgRef.current.parentElement!.parentElement!.clientHeight,
+        });
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    console.log('dimensions', dimensions);
+  }, [dimensions]);
 
   useEffect(() => {
     setTransformedData(transformData(data));
@@ -204,8 +224,9 @@ const Graph: React.FC<GraphProps> = ({
     // 그룹별로 노드 분류 및 초기 위치 설정
     const groupedNodes = d3.group(transformedData.nodes, (d) => d.group);
     const groups = Array.from(groupedNodes.keys());
-    const width = 600;
-    const height = 800;
+
+    const width = dimensions.width;
+    const height = dimensions.height;
 
     // 그룹 위치 계산
     const centerX = width / 2;
@@ -230,8 +251,8 @@ const Graph: React.FC<GraphProps> = ({
   useEffect(() => {
     if (!svgRef.current || transformedData.nodes.length === 0) return;
 
-    const width = 600;
-    const height = 800;
+    const width = dimensions.width;
+    const height = dimensions.height;
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -402,10 +423,7 @@ const Graph: React.FC<GraphProps> = ({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <button
-          className="search-button"
-          onClick={handleSearch}
-        >
+        <button className="search-button" onClick={handleSearch}>
           검색
         </button>
       </div>

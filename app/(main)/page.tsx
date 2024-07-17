@@ -203,7 +203,7 @@ const Page = () => {
       <Tabs
         selectedIndex={activeTab1}
         onSelect={(tabIndex) => setActiveTab1(tabIndex)}
-        className="flex flex-col flex-1 h-full"
+        className="flex flex-col flex-1 h-full min-w-[700px]"
       >
         <TabList>
           {tabs1.map((tab, index) => (
