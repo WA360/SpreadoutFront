@@ -35,23 +35,3 @@ text {
 .react-tabs__tab-panel--selected {
   height: calc(98% - 40px);
 }
-
-.node-title {
-  font-size: 16px;
-  font-weight: bold;
-  pointer-events: none; /* 마우스 이벤트 방지 */
-  text-anchor: middle;
-}
-
-.pulse {
-  animation: pulse-animation 1.5s infinite;
-}
-
-@keyframes pulse-animation {
-  0% {
-    filter: drop-shadow(0 0 0px rgba(0, 0, 0, 1));
-  }
-  100% {
-    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0));
-  }
-}

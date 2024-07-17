@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { OriginGraphData } from '@/app/(main)/page';
 // 검색 노드에 펄스효과를 주기 위한 기능
-import '@/app/globals.css';
+import './style.css';
 
 // Node 인터페이스 정의
 interface Node extends d3.SimulationNodeDatum {
@@ -379,6 +379,12 @@ const Graph: React.FC<GraphProps> = ({
   }, [transformedData, searchResults]); // searchResults를 dependency로 추가
 
   const handleSearch = () => {
+    const trimmedQuery = searchQuery.trim();
+
+    if (trimmedQuery === '') {
+      setSearchResults([]);
+      return;
+    }
     // 검색어를 포함하는 노드 필터링
     const filteredNodes = transformedData.nodes.filter((node) =>
       node.name.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -392,10 +398,16 @@ const Graph: React.FC<GraphProps> = ({
       <div>
         <input
           type="text"
+          className="search-box"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <button onClick={handleSearch}>검색</button>
+        <button
+          className="search-button"
+          onClick={handleSearch}
+        >
+          검색
+        </button>
       </div>
       <svg ref={svgRef}></svg>
     </div>
