@@ -44,7 +44,12 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ question: question, fileNum: 3, fileName: "fileName" }),
+        body: JSON.stringify({
+          question: question,
+          fileNum: 3,
+          fileName: 'csapp.pdf',
+          chatNum: 7,
+        }),
       },
     );
 

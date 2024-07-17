@@ -66,8 +66,9 @@ const Page = () => {
   const setPdfFile = useSetRecoilState(pdfFileState); // 현재 보고 있는 pdf파일의 전역상태 설정 함수
   const selectedToc = useRecoilValue(selectedTocState); // 현재 클릭한 챕터의 전역상태
   const [tabs1, setTabs1] = useState<TabData[]>([
-    // Tabs1에 소속된 Tab들의 정보가 들어있는 배열b
-    { key: 'diagram', title: 'Diagram' }, // Diagram Tab은 미리 넣어준다.
+    // Tabs1에 소속된 Tab들의 정보가 들어있는 배열
+    { key: 'diagram', title: 'Diagram' },
+    { key: 'bookmarked', title: 'Bookmarked' }, // 기본 포함 탭
   ]);
   const [activeTab1, setActiveTab1] = useState<number>(0); // Tabs1에서 현재 활성화 돼있는 탭을 구분하기 위한 상태
   // Tabs1에 속한 Tab마다 pageNumber를 설정해주기 위한 상태
@@ -210,7 +211,7 @@ const Page = () => {
             <Tab key={tab.key}>
               {tab.title}
               &nbsp;
-              {index !== 0 && (
+              {index > 1 && (
                 <button onClick={() => removeTab1(tab.key)}>x</button>
               )}
             </Tab>
@@ -218,11 +219,9 @@ const Page = () => {
         </TabList>
         {tabs1.map((tab) => (
           <TabPanel key={tab.key}>
-            {tab.key === 'diagram' ? (
-              selectedPdfIdState == null ? (
-                <></>
-              ) : (
-                <Graph
+            {tab.key === 'diagram' || tab.key === 'bookmarked' ? (
+              <Graph
+                  iskey={tab.key}
                   data={
                     graphData || {
                       nodes: [],
@@ -234,13 +233,15 @@ const Page = () => {
                   handleNodeClick={handleNodeClick}
                   handleSessionNodeClick={handleSessionNodeClick}
                 />
-              )
             ) : (
               <div className="relative tab-panel h-full">
                 <h3 className="absolute top-1 right-4 z-10">
                   Tab Number: {tabs1.findIndex((t) => t.key === tab.key)}
                 </h3>
-                <PDFReader pageNumber={tabPageNumbers[tab.key]} />
+                <PDFReader
+                  pageNumber={tabPageNumbers[tab.key]}
+                  fetchGraphData={fetchGraphData}
+                />
               </div>
             )}
           </TabPanel>

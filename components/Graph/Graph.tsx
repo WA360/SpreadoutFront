@@ -54,20 +54,25 @@ interface Data {
 }
 
 interface GraphProps {
+  iskey: string; // 일반 그래프인지, 북마크 그래프인지
   data: OriginGraphData;
   handleNodeClick: (pageNumber: number) => void;
   handleSessionNodeClick: (sessionId: number) => void;
 }
 
 // 데이터 변환 함수
-const transformData = (data: any): Data => {
+const transformData = (iskey: string, data: any): Data => {
   // 노드 변환
-  const nodes: Node[] = data.nodes.map((node: any) => ({
+  let nodes: Node[] = data.nodes.map((node: any) => ({
     ...node,
     id: String(node.id), // id를 string으로 변환
     group: String(node.group), // group을 string으로 변환
     level: String(node.level),
   }));
+
+  if (iskey === 'bookmarked') {
+    nodes = nodes.filter(node => node.bookmarked === 1);
+  }
 
   // 세션노드 변환
   const session_nodes: SessionNode[] = data.session_nodes.map(
@@ -183,11 +188,11 @@ const getNodeSize = (level: string): number => {
 };
 
 const Graph: React.FC<GraphProps> = ({
+  iskey,
   data,
   handleNodeClick,
   handleSessionNodeClick,
 }) => {
-  console.log("test");
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [transformedData, setTransformedData] = useState<Data>({
     nodes: [],
@@ -216,11 +221,8 @@ const Graph: React.FC<GraphProps> = ({
   }, []);
 
   useEffect(() => {
-    console.log('dimensions', dimensions);
-  }, [dimensions]);
-
-  useEffect(() => {
-    setTransformedData(transformData(data));
+    console.log(iskey, 'node.bookmarked');
+    setTransformedData(transformData(iskey, data));
   }, [data]);
 
   useEffect(() => {
@@ -324,7 +326,7 @@ const Graph: React.FC<GraphProps> = ({
           setSelectedToc({
             id: Number(d.id),
             startPage: d.start_page,
-            bookmarked: d.bookmarked
+            bookmarked: d.bookmarked,
           });
         } else if ('chapter_id' in d) {
           // chapter_id의 존재로 세션노드 구분

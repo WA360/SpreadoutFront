@@ -6,7 +6,11 @@ import { useRecoilValue } from 'recoil';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
-import { pdfFileState, selectedTocState } from '../recoil/atoms';
+import {
+  pdfFileState,
+  selectedTocState,
+  selectedPdfIdState,
+} from '../recoil/atoms';
 import axios from 'axios';
 import { headers } from 'next/headers';
 
@@ -14,9 +18,13 @@ pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 interface PDFReaderProps {
   pageNumber: number;
+  fetchGraphData: (pdfId: number) => void;
 }
 
-const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber }) => {
+const PDFReader: React.FC<PDFReaderProps> = ({
+  pageNumber,
+  fetchGraphData,
+}) => {
   const pdfFile = useRecoilValue(pdfFileState);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [visiblePages, setVisiblePages] = useState<number[]>([]);
@@ -24,6 +32,7 @@ const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isBookmark, setIsBookmark] = useState(0);
   const selectedToc = useRecoilValue(selectedTocState);
+  const selectedPdfId = useRecoilValue(selectedPdfIdState);
 
   useEffect(() => {
     console.log('잘 가져왔는가 : ', selectedToc);
@@ -116,6 +125,7 @@ const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber }) => {
           },
         },
       );
+      fetchGraphData(selectedPdfId!);
     } catch (error) {
       console.error('백엔드 문제입니다. : ', error);
     }
