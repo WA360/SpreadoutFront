@@ -50,7 +50,9 @@
   stroke: #00ccff; /* 노드 외곽선 색상 */
   stroke-width: 3px; /* 외곽선 두께 */
   fill: #ff0; /* 강조 색상 */
-  transition: fill 0.3s, stroke 0.3s; /* 색상 변화 애니메이션 */
+  transition:
+    fill 0.3s,
+    stroke 0.3s; /* 색상 변화 애니메이션 */
 }
 
 .node-title {
@@ -58,4 +60,30 @@
   font-weight: bold;
   pointer-events: none; /* 마우스 이벤트 방지 */
   text-anchor: middle;
+}
+
+.search-box {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 200px;
+  margin-right: 10px;
+}
+
+.search-button {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  background: none;
+}
+
+.search-button:hover {
+  background: #cccccc93;
+}
+
+.search-button:active {
+  background: #aaaaaa;
 }

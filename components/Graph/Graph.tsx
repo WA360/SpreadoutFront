@@ -402,12 +402,12 @@ const Graph: React.FC<GraphProps> = ({
       <div>
         <input
           type="text"
-          className="border-2 border-red-500"
+          className="search-box"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
         <button
-          className="bg-green-500 hover:bg-green-700"
+          className="search-button"
           onClick={handleSearch}
         >
           검색
