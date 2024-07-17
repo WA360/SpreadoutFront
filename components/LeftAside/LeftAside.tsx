@@ -112,8 +112,8 @@ const LeftAside = () => {
     console.log('pdfId 변경됨 : ', id);
   };
 
-  const handleTocClick = (id: number, startPage: number) => {
-    setSelectedToc({ id, startPage }); // selectedToc 상태 업데이트
+  const handleTocClick = (id: number, startPage: number, bookmarked: number) => {
+    setSelectedToc({ id, startPage, bookmarked }); // selectedToc 상태 업데이트
   };
 
   const toggleTocVisibility = () => {
@@ -160,13 +160,14 @@ const LeftAside = () => {
             {selectedPdfId === file.id && isTocVisible && pdfData && (
               <ul className="toc-list">
                 {pdfData.nodes.map(
-                  (node: { id: number; name: string; start_page: number }) => (
+                  (node: { id: number; name: string; start_page: number; bookmarked: number; }) => (
                     <li
                       key={node.id}
                       className="toc-item"
-                      onClick={() =>
-                        handleTocClick(node.id, node.start_page)
-                      }
+                      onClick={() => {
+                        console.log("node", node);
+                        (node.id, node.start_page, node.bookmarked)
+                      }}
                     >
                       {node.name}
                     </li>

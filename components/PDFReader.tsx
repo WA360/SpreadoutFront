@@ -1,12 +1,14 @@
 // src/components/PDFReader.tsx
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, use } from 'react';
 import { useRecoilValue } from 'recoil';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
-import { pdfFileState } from '../recoil/atoms';
+import { pdfFileState, selectedTocState } from '../recoil/atoms';
+import axios from 'axios';
+import { headers } from 'next/headers';
 
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
@@ -20,6 +22,13 @@ const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber }) => {
   const [visiblePages, setVisiblePages] = useState<number[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isBookmark, setIsBookmark] = useState(0);
+  const selectedToc = useRecoilValue(selectedTocState);
+
+  useEffect(() => {
+    console.log('잘 가져왔는가 : ', selectedToc);
+    setIsBookmark(selectedToc!.bookmarked);
+  }, [selectedToc]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -83,6 +92,35 @@ const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber }) => {
     };
   }, [visiblePages, numPages, isLoading]);
 
+  const getCookieValue = (name: string) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift();
+    return null;
+  };
+
+  const handleBookmarkedButtonClick = async (chapterId: number) => {
+    setIsBookmark((isBookmark + 1) % 2);
+    console.log('api 작동!');
+    try {
+      const token = getCookieValue('token');
+      const response = await axios.put(
+        'http://3.38.176.179:4000/pdf/bookmark',
+        {
+          bookmarked: (selectedToc!.bookmarked + 1) % 2,
+          chapterId: chapterId,
+        },
+        {
+          headers: {
+            token: `${token}`,
+          },
+        },
+      );
+    } catch (error) {
+      console.error('백엔드 문제입니다. : ', error);
+    }
+  };
+
   return (
     <div
       ref={containerRef}
@@ -94,6 +132,12 @@ const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber }) => {
           onLoadSuccess={onDocumentLoadSuccess}
           className="border border-gray-300 rounded"
         >
+          <button
+            className="bookmark-button"
+            onClick={() => handleBookmarkedButtonClick(selectedToc!.id)}
+          >
+            {isBookmark ? '북마크 됨' : '북마크 안됨'}
+          </button>
           {visiblePages.map((pageNum) => (
             <Page
               key={pageNum}

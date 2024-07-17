@@ -34,7 +34,11 @@ export const selectedPdfIdState = atom<number | null>({
 });
 
 // 선택된 목차 항목 상태 정의
-export const selectedTocState = atom<{ id: number; startPage: number } | null>({
+export const selectedTocState = atom<{
+  id: number;
+  startPage: number;
+  bookmarked: number;
+} | null>({
   key: 'selectedTocState',
   default: null,
 });

@@ -76,3 +76,20 @@
   border-radius: 4px; /* 둥근 모서리 */
   padding: 2px 4px; /* 여백 추가 */
 }
+
+.bookmark-button {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  background: none;
+}
+
+.bookmark-button:hover {
+  background: #cccccc93;
+}
+
+.bookmark-button:active {
+  background: #aaaaaa;
+}

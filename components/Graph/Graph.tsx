@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { OriginGraphData } from '@/app/(main)/page';
-// 검색 노드에 펄스효과를 주기 위한 기능
+import { useRecoilState } from 'recoil';
+import { selectedTocState } from '@/recoil/atoms';
 import './style.css';
 
 // Node 인터페이스 정의
@@ -10,8 +11,8 @@ interface Node extends d3.SimulationNodeDatum {
   name: string;
   group: string;
   level: string;
-  start_page?: number;
-  end_page?: number;
+  start_page: number;
+  end_page: number;
   bookmarked: number;
   pdf_file_id: number;
 }
@@ -186,6 +187,7 @@ const Graph: React.FC<GraphProps> = ({
   handleNodeClick,
   handleSessionNodeClick,
 }) => {
+  console.log("test");
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [transformedData, setTransformedData] = useState<Data>({
     nodes: [],
@@ -195,6 +197,7 @@ const Graph: React.FC<GraphProps> = ({
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Node[]>([]);
+  const [selectedToc, setSelectedToc] = useRecoilState(selectedTocState);
 
   useEffect(() => {
     setTransformedData(transformData(data));
@@ -297,8 +300,15 @@ const Graph: React.FC<GraphProps> = ({
       )
       .attr('class', (d) => (searchResults.includes(d as Node) ? 'pulse' : '')) // 검색된 노드에 펄스 애니메이션
       .on('click', (event, d: Node | SessionNode) => {
+        console.log('testtttt');
         if ('start_page' in d) {
-          handleNodeClick(Number(d.start_page));
+          // selectedToc 업데이트
+          // selectedToc가 업데이트 되면 page.tsx에 있는 selectedToc를 구독하는 useEffect가 작동해서 탭 열어줌
+          setSelectedToc({
+            id: Number(d.id),
+            startPage: d.start_page,
+            bookmarked: d.bookmarked
+          });
         } else if ('chapter_id' in d) {
           // chapter_id의 존재로 세션노드 구분
           handleSessionNodeClick(Number(d.id));
@@ -406,10 +416,7 @@ const Graph: React.FC<GraphProps> = ({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <button
-          className="search-button"
-          onClick={handleSearch}
-        >
+        <button className="search-button" onClick={handleSearch}>
           검색
         </button>
       </div>
