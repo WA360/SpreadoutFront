@@ -149,9 +149,23 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
         {messages.map((message, index) => (
           <div
             key={index}
-            className={`p-2 ${message.isUser ? 'text-right' : 'text-left'}`}
+            className={`flex mb-4 ${message.isUser ? 'justify-end' : 'justify-start'}`}
           >
-            {message.text}
+            {!message.isUser && (
+              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-2">
+                🤖
+              </div>
+            )}
+            <div
+              className={`p-3 rounded-lg shadow-md max-w-[70%] ${message.isUser ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
+            >
+              {message.text}
+            </div>
+            {message.isUser && (
+              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center ml-2">
+                😊
+              </div>
+            )}
           </div>
         ))}
       </div>
