@@ -198,6 +198,26 @@ const Graph: React.FC<GraphProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Node[]>([]);
   const [selectedToc, setSelectedToc] = useRecoilState(selectedTocState);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (svgRef.current) {
+        setDimensions({
+          width: svgRef.current.parentElement!.parentElement!.clientWidth,
+          height: svgRef.current.parentElement!.parentElement!.clientHeight,
+        });
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    console.log('dimensions', dimensions);
+  }, [dimensions]);
 
   useEffect(() => {
     setTransformedData(transformData(data));
@@ -207,8 +227,9 @@ const Graph: React.FC<GraphProps> = ({
     // 그룹별로 노드 분류 및 초기 위치 설정
     const groupedNodes = d3.group(transformedData.nodes, (d) => d.group);
     const groups = Array.from(groupedNodes.keys());
-    const width = 600;
-    const height = 800;
+
+    const width = dimensions.width;
+    const height = dimensions.height;
 
     // 그룹 위치 계산
     const centerX = width / 2;
@@ -233,8 +254,8 @@ const Graph: React.FC<GraphProps> = ({
   useEffect(() => {
     if (!svgRef.current || transformedData.nodes.length === 0) return;
 
-    const width = 600;
-    const height = 800;
+    const width = dimensions.width;
+    const height = dimensions.height;
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -293,11 +314,7 @@ const Graph: React.FC<GraphProps> = ({
       .data([...transformedData.nodes, ...transformedData.session_nodes]) // 세션 노드 추가
       .join('circle')
       .attr('r', (d) => getNodeSize((d as Node).level)) // Node와 SessionNode 모두 처리
-      .attr('fill', (d) =>
-        searchResults.includes(d as Node)
-          ? color((d as Node).level)
-          : color((d as Node).level),
-      )
+      .attr('fill', (d) => color((d as Node).level))
       .attr('class', (d) => (searchResults.includes(d as Node) ? 'pulse' : '')) // 검색된 노드에 펄스 애니메이션
       .on('click', (event, d: Node | SessionNode) => {
         console.log('testtttt');
