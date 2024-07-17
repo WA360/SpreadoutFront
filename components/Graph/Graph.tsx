@@ -290,11 +290,7 @@ const Graph: React.FC<GraphProps> = ({
       .data([...transformedData.nodes, ...transformedData.session_nodes]) // 세션 노드 추가
       .join('circle')
       .attr('r', (d) => getNodeSize((d as Node).level)) // Node와 SessionNode 모두 처리
-      .attr('fill', (d) =>
-        searchResults.includes(d as Node)
-          ? color((d as Node).level)
-          : color((d as Node).level),
-      )
+      .attr('fill', (d) => color((d as Node).level))
       .attr('class', (d) => (searchResults.includes(d as Node) ? 'pulse' : '')) // 검색된 노드에 펄스 애니메이션
       .on('click', (event, d: Node | SessionNode) => {
         if ('start_page' in d) {
@@ -305,17 +301,13 @@ const Graph: React.FC<GraphProps> = ({
         }
       })
       .on('mouseover', (event, d: Node | SessionNode) => {
-        d3.select(event.currentTarget)
-          .classed('node-highlight', true); // 노드 강조 클래스 추가
-        const text = svg.selectAll('text')
-          .filter((node) => node === d);
+        d3.select(event.currentTarget).classed('node-highlight', true); // 노드 강조 클래스 추가
+        const text = svg.selectAll('text').filter((node) => node === d);
         text.style('display', 'block'); // 제목 강조 표시
       })
       .on('mouseout', (event) => {
-        d3.select(event.currentTarget)
-          .classed('node-highlight', false); // 노드 강조 클래스 제거
-        svg.selectAll('text')
-          .style('display', 'none'); // 제목 강조 제거
+        d3.select(event.currentTarget).classed('node-highlight', false); // 노드 강조 클래스 제거
+        svg.selectAll('text').style('display', 'none'); // 제목 강조 제거
       })
       .call(
         d3
