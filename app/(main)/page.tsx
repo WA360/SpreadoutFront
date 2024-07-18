@@ -65,6 +65,7 @@ const Page = () => {
   const selectedPdfId = useRecoilValue(selectedPdfIdState); // 현재 보고 있는 pdf id의 전역상태
   const setPdfFile = useSetRecoilState(pdfFileState); // 현재 보고 있는 pdf파일의 전역상태 설정 함수
   const selectedToc = useRecoilValue(selectedTocState); // 현재 클릭한 챕터의 전역상태
+  const [isBookmark, setIsBookmark] = useState(0); // 현재 pdf뷰어에서 보는 챕터의 북마크 여부
   const [tabs1, setTabs1] = useState<TabData[]>([
     // Tabs1에 소속된 Tab들의 정보가 들어있는 배열
     { key: 'diagram', title: 'Diagram' },
@@ -187,6 +188,36 @@ const Page = () => {
     });
   };
 
+  const getCookieValue = (name: string) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift();
+    return null;
+  };
+
+  const handleBookmarkedButtonClick = async (chapterId: number) => {
+    setIsBookmark((isBookmark + 1) % 2);
+    console.log('api 작동!');
+    try {
+      const token = getCookieValue('token');
+      const response = await axios.put(
+        'http://3.38.176.179:4000/pdf/bookmark',
+        {
+          bookmarked: (selectedToc!.bookmarked + 1) % 2,
+          chapterId: chapterId,
+        },
+        {
+          headers: {
+            token: `${token}`,
+          },
+        },
+      );
+      fetchGraphData(selectedPdfId!);
+    } catch (error) {
+      console.error('백엔드 문제입니다. : ', error);
+    }
+  };
+
   useEffect(() => {
     if (selectedPdfId !== null) {
       fetchGraphData(selectedPdfId); // pdf파일 클릭시 선택된 pdfId 전달하고, url, nodes, links 가져오기
@@ -200,86 +231,91 @@ const Page = () => {
   }, [selectedToc]);
 
   return (
-    <div className="flex h-full gap-2">
-      <Tabs
-        selectedIndex={activeTab1}
-        onSelect={(tabIndex) => setActiveTab1(tabIndex)}
-        className="flex flex-col flex-1 h-full min-w-[700px]"
-      >
-        <TabList>
-          {tabs1.map((tab, index) => (
-            <Tab key={tab.key}>
-              {tab.title}
-              &nbsp;
-              {index > 1 && (
-                <button onClick={() => removeTab1(tab.key)}>x</button>
-              )}
-            </Tab>
-          ))}
-        </TabList>
-        {tabs1.map((tab) => (
-          <TabPanel key={tab.key}>
-            {tab.key === 'diagram' || tab.key === 'bookmarked' ? (
-              <Graph
-                iskey={tab.key}
-                data={
-                  graphData || {
-                    nodes: [],
-                    links: [],
-                    session_nodes: [],
-                    session_links: [],
+    <div className="relative h-full">
+      <div className="flex h-full gap-2">
+        <Tabs
+          selectedIndex={activeTab1}
+          onSelect={(tabIndex) => setActiveTab1(tabIndex)}
+          className="flex flex-col flex-1 h-full min-w-[700px]"
+        >
+          <TabList>
+            {tabs1.map((tab, index) => (
+              <Tab key={tab.key}>
+                {tab.title}
+                &nbsp;
+                {index > 1 && (
+                  <button onClick={() => removeTab1(tab.key)}>x</button>
+                )}
+              </Tab>
+            ))}
+          </TabList>
+          {tabs1.map((tab) => (
+            <TabPanel key={tab.key}>
+              {tab.key === 'diagram' || tab.key === 'bookmarked' ? (
+                <Graph
+                  iskey={tab.key}
+                  data={
+                    graphData || {
+                      nodes: [],
+                      links: [],
+                      session_nodes: [],
+                      session_links: [],
+                    }
                   }
-                }
-                handleNodeClick={handleNodeClick}
-                handleSessionNodeClick={handleSessionNodeClick}
-              />
-            ) : (
-              <div className="relative tab-panel h-full">
-                <h3 className="absolute top-1 right-4 z-10">
-                  Tab Number: {tabs1.findIndex((t) => t.key === tab.key)}
-                </h3>
-                <PDFReader
-                  pageNumber={tabPageNumbers[tab.key]}
-                  fetchGraphData={fetchGraphData}
+                  handleNodeClick={handleNodeClick}
+                  handleSessionNodeClick={handleSessionNodeClick}
                 />
-              </div>
-            )}
-          </TabPanel>
-        ))}
-      </Tabs>
-
-      <Tabs
-        selectedIndex={activeTab2}
-        onSelect={(tabIndex) => setActiveTab2(tabIndex)}
-        className="flex flex-col flex-1 h-full"
-      >
-        <TabList>
-          {tabs2.map((tab, index) => (
-            <Tab key={tab.key}>
-              {tab.title}
-              &nbsp;
-              {index !== 0 && (
-                <button onClick={() => removeTab2(tab.key)}>x</button>
+              ) : (
+                <div className="relative tab-panel h-full">
+                  <button
+                    className="absolute top-4 left-4 z-10 bg-white p-2 rounded shadow"
+                    onClick={() => handleBookmarkedButtonClick(selectedToc!.id)}
+                  >
+                    {isBookmark ? '북마크 됨' : '북마크 안됨'}
+                  </button>
+                  <PDFReader
+                    pageNumber={tabPageNumbers[tab.key]}
+                    fetchGraphData={fetchGraphData}
+                  />
+                </div>
               )}
-            </Tab>
+            </TabPanel>
           ))}
-        </TabList>
-        {tabs2.map((tab) => (
-          <TabPanel key={tab.key}>
-            {tab.key === 'chat' ? (
-              <Chat sessionId={tabSessionNumbers[tab.key]} />
-            ) : (
-              <div className="relative tab-panel h-full">
-                <h3 className="absolute top-1 right-4 z-10">
-                  Tab Number: {tabs2.findIndex((t) => t.key === tab.key)}
-                </h3>
-                <Chat sessionId={tabSessionNumbers[tab.key]} />{' '}
-                {/* 세션 ID 전달 */}
-              </div>
-            )}
-          </TabPanel>
-        ))}
-      </Tabs>
+        </Tabs>
+
+        <Tabs
+          selectedIndex={activeTab2}
+          onSelect={(tabIndex) => setActiveTab2(tabIndex)}
+          className="flex flex-col flex-1 h-full"
+        >
+          <TabList>
+            {tabs2.map((tab, index) => (
+              <Tab key={tab.key}>
+                {tab.title}
+                &nbsp;
+                {index !== 0 && (
+                  <button onClick={() => removeTab2(tab.key)}>x</button>
+                )}
+              </Tab>
+            ))}
+          </TabList>
+          {tabs2.map((tab) => (
+            <TabPanel key={tab.key}>
+              {tab.key === 'chat' ? (
+                <Chat sessionId={tabSessionNumbers[tab.key]} />
+              ) : (
+                <div className="relative tab-panel h-full">
+                  <h3 className="absolute top-1 right-4 z-10">
+                    Tab Number: {tabs2.findIndex((t) => t.key === tab.key)}
+                  </h3>
+                  <Chat sessionId={tabSessionNumbers[tab.key]} />{' '}
+                  {/* 세션 ID 전달 */}
+                </div>
+              )}
+            </TabPanel>
+          ))}
+        </Tabs>
+      </div>
     </div>
   );
 };
