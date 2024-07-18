@@ -275,7 +275,6 @@ const Page = () => {
                   </button>
                   <PDFReader
                     pageNumber={tabPageNumbers[tab.key]}
-                    fetchGraphData={fetchGraphData}
                   />
                 </div>
               )}

@@ -6,25 +6,15 @@ import { useRecoilValue } from 'recoil';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
-import {
-  pdfFileState,
-  selectedTocState,
-  selectedPdfIdState,
-} from '../recoil/atoms';
-import axios from 'axios';
-import { headers } from 'next/headers';
+import { pdfFileState } from '../recoil/atoms';
 
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 interface PDFReaderProps {
   pageNumber: number;
-  fetchGraphData: (pdfId: number) => void;
 }
 
-const PDFReader: React.FC<PDFReaderProps> = ({
-  pageNumber,
-  fetchGraphData,
-}) => {
+const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber }) => {
   const pdfFile = useRecoilValue(pdfFileState);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [visiblePages, setVisiblePages] = useState<number[]>([]);
