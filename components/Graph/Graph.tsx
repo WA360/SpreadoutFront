@@ -1,8 +1,13 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { OriginGraphData } from '@/app/(main)/page';
-import { useRecoilState } from 'recoil';
-import { selectedTocState } from '@/recoil/atoms';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import {
+  pdfFileState,
+  selectedPdfIdState,
+  selectedTocState,
+  pdfDataState,
+} from '@/recoil/atoms';
 import './style.css';
 
 // Node 인터페이스 정의
@@ -28,6 +33,13 @@ interface Link extends d3.SimulationLinkDatum<Node> {
   pdf_file_id: number;
 }
 
+// Custom Link 인터페이스 정의
+interface CustomLink {
+  source?: number | Node;
+  target?: number | Node;
+  pdfId: number | Node;
+}
+
 // SessionNode 인터페이스 정의
 interface SessionNode extends d3.SimulationNodeDatum {
   id: string;
@@ -46,14 +58,14 @@ interface SessionLink extends d3.SimulationLinkDatum<Node | SessionNode> {
 }
 
 // Data 인터페이스 정의
-interface Data {
+export interface Data {
   nodes: Node[];
   links: Link[];
   session_nodes: SessionNode[];
   session_links: SessionLink[];
 }
 
-interface GraphProps {
+export interface GraphProps {
   iskey: string; // 일반 그래프인지, 북마크 그래프인지
   data: OriginGraphData;
   handleNodeClick: (pageNumber: number) => void;
@@ -71,7 +83,7 @@ const transformData = (iskey: string, data: any): Data => {
   }));
 
   if (iskey === 'bookmarked') {
-    nodes = nodes.filter(node => node.bookmarked === 1);
+    nodes = nodes.filter((node) => node.bookmarked === 1);
   }
 
   // 세션노드 변환
@@ -200,10 +212,16 @@ const Graph: React.FC<GraphProps> = ({
     session_nodes: [],
     session_links: [],
   });
+  const [pdfData, setPdfData] = useRecoilState<Data | null>(pdfDataState); // pdf link, node 전역업데이트
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Node[]>([]);
   const [selectedToc, setSelectedToc] = useRecoilState(selectedTocState);
+  const selectedPdfId = useRecoilValue(selectedPdfIdState);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  const [sourceNode, setSourceNode] = useState<string>('');
+  const [targetNode, setTargetNode] = useState<string>('');
 
   useEffect(() => {
     const handleResize = () => {
@@ -223,6 +241,7 @@ const Graph: React.FC<GraphProps> = ({
   useEffect(() => {
     console.log(iskey, 'node.bookmarked');
     setTransformedData(transformData(iskey, data));
+    setPdfData(transformData(iskey, data));
   }, [data]);
 
   useEffect(() => {
@@ -319,7 +338,6 @@ const Graph: React.FC<GraphProps> = ({
       .attr('fill', (d) => color((d as Node).level))
       .attr('class', (d) => (searchResults.includes(d as Node) ? 'pulse' : '')) // 검색된 노드에 펄스 애니메이션
       .on('click', (event, d: Node | SessionNode) => {
-        console.log('testtttt');
         if ('start_page' in d) {
           // selectedToc 업데이트
           // selectedToc가 업데이트 되면 page.tsx에 있는 selectedToc를 구독하는 useEffect가 작동해서 탭 열어줌
@@ -426,9 +444,61 @@ const Graph: React.FC<GraphProps> = ({
     setSearchResults(filteredNodes);
   };
 
+  const getCookieValue = (name: string) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift();
+    return null;
+  };
+
+  const customLink = async () => {
+    console.log('test');
+    console.log('sourceNode', sourceNode);
+    console.log('targetNode', targetNode);
+    console.log('selectedPdfId', selectedPdfId);
+    const token = getCookieValue('token');
+    console.log('token', token);
+    try {
+      const response = await fetch(
+        'http://3.38.176.179:4000/pdf/bookmark/connection',
+        {
+          method: 'POST',
+          headers: {
+            token: `${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            source: Number(sourceNode),
+            target: Number(targetNode),
+            pdfId: Number(selectedPdfId),
+          }),
+        },
+      );
+
+      if (response.ok) {
+        const newLink: any = {
+          source: sourceNode,
+          target: targetNode,
+          pdfId: selectedPdfId,
+        };
+
+        setTransformedData((prevData) => ({
+          ...prevData,
+          links: [...prevData.links, newLink],
+        }));
+
+        setIsModalOpen(false);
+      } else {
+        console.error('Failed to create custom link');
+      }
+    } catch (error) {
+      console.error('Error creating custom link:', error);
+    }
+  };
+
   return (
-    <div>
-      <div>
+    <div className="relative">
+      <div className="flex">
         <input
           type="text"
           className="search-box"
@@ -438,8 +508,61 @@ const Graph: React.FC<GraphProps> = ({
         <button className="search-button" onClick={handleSearch}>
           검색
         </button>
+        <button
+          className="ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          onClick={() => setIsModalOpen(true)}
+        >
+          커스텀링크
+        </button>
       </div>
       <svg ref={svgRef}></svg>
+      {isModalOpen && (
+        <div className="absolute inset-0 flex justify-center items-center top-0 left-0">
+          <div className="bg-white p-6 rounded shadow-lg w-[400px]">
+            <h2 className="text-lg font-bold mb-4">모달 창</h2>
+            <select
+              className="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline mb-4"
+              value={sourceNode}
+              onChange={(e) => setSourceNode(e.target.value)}
+            >
+              <option value="">출발 노드를 선택하세요</option>
+              {pdfData &&
+                pdfData.nodes.map((node) => (
+                  <option key={node.id} value={node.id}>
+                    {node.name}
+                  </option>
+                ))}
+            </select>
+            <select
+              className="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline mb-4"
+              value={targetNode}
+              onChange={(e) => setTargetNode(e.target.value)}
+            >
+              <option value="">도착 노드를 선택하세요</option>
+              {pdfData &&
+                pdfData.nodes.map((node) => (
+                  <option key={node.id} value={node.id}>
+                    {node.name}
+                  </option>
+                ))}
+            </select>
+            <div className="flex gap-1">
+              <button
+                className="ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={() => setIsModalOpen(false)}
+              >
+                취소
+              </button>
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={customLink}
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,4 +1,5 @@
-import { atom } from 'recoil';
+import { atom, RecoilState } from 'recoil';
+import { Data } from '@/components/Graph/Graph';
 
 // 기존 atom 정의
 
@@ -43,4 +44,8 @@ export const selectedTocState = atom<{
   default: null,
 });
 
-// 채팅에서 받아온 data
+// pdfData
+export const pdfDataState: RecoilState<Data | null> = atom<Data | null>({
+  key: 'pdfDataState',
+  default: null,
+});

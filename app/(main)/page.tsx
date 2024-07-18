@@ -200,7 +200,7 @@ const Page = () => {
   }, [selectedToc]);
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full gap-2">
       <Tabs
         selectedIndex={activeTab1}
         onSelect={(tabIndex) => setActiveTab1(tabIndex)}
@@ -221,18 +221,18 @@ const Page = () => {
           <TabPanel key={tab.key}>
             {tab.key === 'diagram' || tab.key === 'bookmarked' ? (
               <Graph
-                  iskey={tab.key}
-                  data={
-                    graphData || {
-                      nodes: [],
-                      links: [],
-                      session_nodes: [],
-                      session_links: [],
-                    }
+                iskey={tab.key}
+                data={
+                  graphData || {
+                    nodes: [],
+                    links: [],
+                    session_nodes: [],
+                    session_links: [],
                   }
-                  handleNodeClick={handleNodeClick}
-                  handleSessionNodeClick={handleSessionNodeClick}
-                />
+                }
+                handleNodeClick={handleNodeClick}
+                handleSessionNodeClick={handleSessionNodeClick}
+              />
             ) : (
               <div className="relative tab-panel h-full">
                 <h3 className="absolute top-1 right-4 z-10">

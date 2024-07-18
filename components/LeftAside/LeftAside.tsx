@@ -165,8 +165,11 @@ const LeftAside = () => {
                       key={node.id}
                       className="toc-item"
                       onClick={() => {
-                        console.log("node", node);
-                        (node.id, node.start_page, node.bookmarked)
+                        handleTocClick(
+                          node.id,
+                          node.start_page,
+                          node.bookmarked,
+                        );
                       }}
                     >
                       {node.name}
