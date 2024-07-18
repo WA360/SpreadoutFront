@@ -20,3 +20,9 @@ body {
 .react-tabs__tab-panel--selected {
   height: calc(98% - 40px);
 }
+
+/* 마크다운 테이블 레이아웃 버그 수정용 css */
+.markdown-body table {
+  table-layout: fixed;
+  width: auto !important;
+}
