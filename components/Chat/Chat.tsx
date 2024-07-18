@@ -6,6 +6,7 @@ import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
 import 'github-markdown-css/github-markdown.css';
+import { emojify } from 'node-emoji';
 
 interface Message {
   text: string;
@@ -121,11 +122,11 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
             !newMessages[newMessages.length - 1].isUser
           ) {
             newMessages[newMessages.length - 1] = {
-              text: aiMessage,
+              text: emojify(aiMessage),
               isUser: false,
             };
           } else {
-            newMessages.push({ text: aiMessage, isUser: false });
+            newMessages.push({ text: emojify(aiMessage), isUser: false });
           }
           return newMessages;
         });
