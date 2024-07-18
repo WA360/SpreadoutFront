@@ -1,6 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getMessages, saveMessage } from './actions'; // actions.ts 파일에서 함수들을 가져옵니다.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import Markdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import remarkGfm from 'remark-gfm';
+import DOMPurify from 'dompurify';
+import 'github-markdown-css/github-markdown.css';
 
 interface Message {
   text: string;
@@ -52,6 +57,8 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
         }),
       },
     );
+
+    console.log('response', response);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -105,6 +112,8 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
         const chunk = decoder.decode(value);
         aiMessage += chunk;
 
+        console.log('aiMessage', aiMessage);
+
         setMessages((prev) => {
           const newMessages = [...prev];
           if (newMessages.length > 0 && newMessages[0].isUser) {
@@ -119,6 +128,8 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
           }
           return newMessages;
         });
+
+        console.log('messages', messages);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -152,17 +163,28 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
             className={`flex mb-4 ${message.isUser ? 'justify-end' : 'justify-start'}`}
           >
             {!message.isUser && (
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-2">
+              <div className="w-8 h-8 shadow-md border rounded-full flex items-center justify-center mr-2">
                 🤖
               </div>
             )}
             <div
-              className={`p-3 rounded-lg shadow-md max-w-[70%] ${message.isUser ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
+              className={`p-3 rounded-lg shadow-md max-w-[70%] ${message.isUser ? 'bg-white text-gray-800 border shadow-md' : 'bg-white text-gray-800 border shadow-md'}`}
             >
-              {message.text}
+              {message.isUser ? (
+                message.text
+              ) : (
+                <div className="markdown-body bg-transparent text-inherit">
+                  <Markdown
+                    rehypePlugins={[rehypeRaw]}
+                    remarkPlugins={[remarkGfm]}
+                  >
+                    {DOMPurify.sanitize(message.text)}
+                  </Markdown>
+                </div>
+              )}
             </div>
             {message.isUser && (
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center ml-2">
+              <div className="w-8 h-8 shadow-md border rounded-full flex items-center justify-center ml-2">
                 😊
               </div>
             )}
