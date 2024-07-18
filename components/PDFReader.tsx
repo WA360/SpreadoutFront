@@ -90,16 +90,12 @@ const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber }) => {
         className="container mx-auto p-4 overflow-auto h-full"
       >
         {pdfFile && (
-          <Document
-            file={pdfFile}
-            onLoadSuccess={onDocumentLoadSuccess}
-            className="border border-gray-300 rounded"
-          >
+          <Document file={pdfFile} onLoadSuccess={onDocumentLoadSuccess}>
             {visiblePages.map((pageNum) => (
               <Page
                 key={pageNum}
                 pageNumber={pageNum}
-                className="max-w-full h-auto mb-4"
+                className="max-w-full h-auto mb-3 shadow-[2px_2px_8px_0_rgba(0,0,0,0.2)]"
               />
             ))}
           </Document>
