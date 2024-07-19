@@ -6,21 +6,39 @@ import { useRecoilValue } from 'recoil';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
-import { pdfFileState } from '../recoil/atoms';
+import {
+  pdfFileState,
+  selectedTocState,
+  selectedPdfIdState,
+} from '../../recoil/atoms';
+import axios from 'axios';
+import { headers } from 'next/headers';
 
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 interface PDFReaderProps {
   pageNumber: number;
-  scale: number;
+  fetchGraphData: (pdfId: number) => void;
 }
 
-const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber, scale }) => {
+const PDFReader: React.FC<PDFReaderProps> = ({
+  pageNumber,
+  fetchGraphData,
+}) => {
   const pdfFile = useRecoilValue(pdfFileState);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [visiblePages, setVisiblePages] = useState<number[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const bookmarkButtonRef = useRef<HTMLButtonElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isBookmark, setIsBookmark] = useState(0);
+  const selectedToc = useRecoilValue(selectedTocState);
+  const selectedPdfId = useRecoilValue(selectedPdfIdState);
+
+  useEffect(() => {
+    console.log('잘 가져왔는가 : ', selectedToc);
+    setIsBookmark(selectedToc!.bookmarked);
+  }, [selectedToc]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -59,7 +77,7 @@ const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber, scale }) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (containerRef.current) {
+      if (containerRef.current && bookmarkButtonRef) {
         const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
         const scrollBottom = scrollHeight - scrollTop - clientHeight;
 
@@ -84,24 +102,59 @@ const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber, scale }) => {
     };
   }, [visiblePages, numPages, isLoading]);
 
+  const getCookieValue = (name: string) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift();
+    return null;
+  };
+
+  const handleBookmarkedButtonClick = async (chapterId: number) => {
+    setIsBookmark((isBookmark + 1) % 2);
+    console.log('api 작동!');
+    try {
+      const token = getCookieValue('token');
+      const response = await axios.put(
+        'http://3.38.176.179:4000/pdf/bookmark',
+        {
+          bookmarked: (selectedToc!.bookmarked + 1) % 2,
+          chapterId: chapterId,
+        },
+        {
+          headers: {
+            token: `${token}`,
+          },
+        },
+      );
+      fetchGraphData(selectedPdfId!);
+    } catch (error) {
+      console.error('백엔드 문제입니다. : ', error);
+    }
+  };
+
   return (
-    <div className="pdf-reader-wrapper relative h-full w-full">
+    <div className="container mx-auto p-4 relative">
+      <button
+        className="bookmark-button"
+        onClick={() => handleBookmarkedButtonClick(selectedToc!.id)}
+      >
+        {isBookmark ? '북마크 됨' : '북마크 안됨'}
+      </button>
       <div
         ref={containerRef}
-        className="container mx-auto p-4 overflow-auto h-full w-full"
+        className="container mx-auto p-4 overflow-auto h-full"
       >
         {pdfFile && (
           <Document
             file={pdfFile}
             onLoadSuccess={onDocumentLoadSuccess}
-            className="border border-gray-300 rounded w-full"
+            className="border border-gray-300 rounded"
           >
             {visiblePages.map((pageNum) => (
               <Page
                 key={pageNum}
                 pageNumber={pageNum}
-                scale={scale}
-                className="w-full h-auto mb-4"
+                className="max-w-full h-auto mb-4"
               />
             ))}
           </Document>
