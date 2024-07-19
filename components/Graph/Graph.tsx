@@ -223,6 +223,8 @@ const Graph: React.FC<GraphProps> = ({
   const [sourceNode, setSourceNode] = useState<string>('');
   const [targetNode, setTargetNode] = useState<string>('');
 
+  const [hoveredNodeName, setHoveredNodeName] = useState<string>('');
+
   useEffect(() => {
     const handleResize = () => {
       if (svgRef.current) {
@@ -352,11 +354,13 @@ const Graph: React.FC<GraphProps> = ({
         }
       })
       .on('mouseover', (event, d: Node | SessionNode) => {
+        setHoveredNodeName(d.name);
         d3.select(event.currentTarget).classed('node-highlight', true); // 노드 강조 클래스 추가
         const text = svg.selectAll('text').filter((node) => node === d);
         text.style('display', 'block'); // 제목 강조 표시
       })
       .on('mouseout', (event) => {
+        setHoveredNodeName('');
         d3.select(event.currentTarget).classed('node-highlight', false); // 노드 강조 클래스 제거
         svg.selectAll('text').style('display', 'none'); // 제목 강조 제거
       })
@@ -378,7 +382,7 @@ const Graph: React.FC<GraphProps> = ({
       .attr('class', 'node-title') // 제목 클래스 추가
       .attr('x', 12)
       .attr('y', '0.31em')
-      .style('font-size', '16px')
+      .style('font-size', '12px')
       .style('display', 'none')
       .text((d) => d.name);
 
@@ -401,7 +405,7 @@ const Graph: React.FC<GraphProps> = ({
       text
         .style(
           'font-size',
-          (d: Node | SessionNode) => `${Math.max(12 / zoomLevel, 2)}px`,
+          (d: Node | SessionNode) => `${Math.max(16 / zoomLevel, 2)}px`,
         )
         .style('display', (d: Node | SessionNode) =>
           levelVisibility((d as Node).level, zoomLevel),
@@ -563,6 +567,7 @@ const Graph: React.FC<GraphProps> = ({
           </div>
         </div>
       )}
+      <div className="node-title-box">{hoveredNodeName}</div>
     </div>
   );
 };
