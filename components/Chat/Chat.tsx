@@ -6,6 +6,7 @@ import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
 import 'github-markdown-css/github-markdown.css';
+import { emojify } from 'node-emoji';
 
 interface Message {
   text: string;
@@ -22,7 +23,7 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isEnd, setIsEnd] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
-  const queryClient = useQueryClient();
+  const messagesEndRef = useRef<HTMLDivElement>(null); // 메시지 끝에 대한 ref 추가
 
   // React Query를 사용하여 메시지 가져오기
   const { data: server_messages = [] } = useQuery<Message[]>({
@@ -90,7 +91,7 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
 
     setIsLoading(true);
     const userMessage: Message = { isUser: true, text: inputMessage };
-    setMessages((prev) => [userMessage, ...prev]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputMessage('');
     setIsEnd(false);
 
@@ -116,15 +117,16 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
 
         setMessages((prev) => {
           const newMessages = [...prev];
-          if (newMessages.length > 0 && newMessages[0].isUser) {
-            newMessages.unshift({ text: aiMessage, isUser: false });
-          } else if (newMessages.length > 0) {
-            newMessages[0] = {
-              text: aiMessage,
+          if (
+            newMessages.length > 0 &&
+            !newMessages[newMessages.length - 1].isUser
+          ) {
+            newMessages[newMessages.length - 1] = {
+              text: emojify(aiMessage),
               isUser: false,
             };
           } else {
-            newMessages.push({ text: aiMessage, isUser: false });
+            newMessages.push({ text: emojify(aiMessage), isUser: false });
           }
           return newMessages;
         });
@@ -137,7 +139,7 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
         text: '메시지 전송 중 오류가 발생했습니다.',
         isUser: false,
       };
-      setMessages((prev) => [errorMessage, ...prev]);
+      setMessages((prev) => [...prev, errorMessage]);
       setIsEnd(true);
     } finally {
       setIsLoading(false);
@@ -153,10 +155,16 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
     });
   }, [isLoading, isEnd]);
 
+  // 메시지가 업데이트될 때마다 스크롤을 하단으로 이동시키는 useEffect
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'auto' });
+    }
+  }, [messages]);
+
   return (
     <div className="flex flex-col h-full border">
-      <div className="flex flex-col-reverse flex-1 p-[8px] overflow-auto">
-        {isLoading && <div>메시지를 처리 중입니다...</div>}
+      <div className="flex flex-col flex-1 p-[8px] overflow-auto">
         {messages.map((message, index) => (
           <div
             key={index}
@@ -190,6 +198,8 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
             )}
           </div>
         ))}
+        {isLoading && <div>메시지를 처리 중입니다...</div>}
+        <div ref={messagesEndRef} />
       </div>
       <form
         onSubmit={handleSendMessage}

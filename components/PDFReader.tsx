@@ -101,7 +101,7 @@ const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber, scale }) => {
                 key={pageNum}
                 pageNumber={pageNum}
                 scale={scale}
-                className="w-full h-auto mb-4"
+                className="w-full h-auto mb-4 shadow-[2px_2px_8px_0_rgba(0,0,0,0.2)]"
               />
             ))}
           </Document>
