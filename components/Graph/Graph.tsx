@@ -20,6 +20,7 @@ interface Node extends d3.SimulationNodeDatum {
   end_page: number;
   bookmarked: number;
   pdf_file_id: number;
+  filename: string;
 }
 
 // Link 인터페이스 정의

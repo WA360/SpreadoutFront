@@ -28,6 +28,7 @@ export interface OriginNode {
   name: string;
   pdf_file_id: number;
   start_page: number;
+  filename: string;
 }
 
 export interface OriginLink {

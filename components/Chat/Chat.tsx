@@ -7,6 +7,9 @@ import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
 import 'github-markdown-css/github-markdown.css';
 import { emojify } from 'node-emoji';
+import { useRecoilValue } from 'recoil';
+import { pdfDataState, selectedPdfIdState } from '@/recoil/atoms';
+import { Data } from '@/components/Graph/Graph';
 
 interface Message {
   text: string;
@@ -24,6 +27,8 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
   const [isEnd, setIsEnd] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null); // 메시지 끝에 대한 ref 추가
+  const selectedPdfId = useRecoilValue(selectedPdfIdState);
+  const pdfData = useRecoilValue<Data | null>(pdfDataState); // pdf link, node 전역업데이트
 
   // React Query를 사용하여 메시지 가져오기
   const { data: server_messages = [] } = useQuery<Message[]>({
@@ -41,6 +46,12 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
   const sendMessage = async (
     question: string,
   ): Promise<ReadableStream<Uint8Array>> => {
+    // 랜덤으로 1부터 1000000까지 생성
+    const random = (min: number, max: number): number => {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
+
+    const randomNumber = random(1, 1000000);
     if (!isEnd) return new ReadableStream<Uint8Array>();
 
     const response = await fetch(
@@ -52,9 +63,9 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
         },
         body: JSON.stringify({
           question: question,
-          fileNum: 3,
-          fileName: 'csapp.pdf',
-          chatNum: 7,
+          fileNum: selectedPdfId,
+          fileName: pdfData!.nodes[0].filename,
+          chatNum: randomNumber,
         }),
       },
     );
