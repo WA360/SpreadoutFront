@@ -6,6 +6,7 @@ import {
   pdfFileState,
   selectedPdfIdState,
   selectedTocState,
+  messageState,
 } from '../../recoil/atoms';
 import { fetchPdfFilesFromServer, fetchPdfDataFromServer } from './actions';
 import axios from 'axios';
@@ -14,6 +15,7 @@ import './styles.css'; // CSS 파일 import
 const LeftAside = () => {
   const [, setPdfFile] = useRecoilState(pdfFileState);
   const [selectedPdfId, setSelectedPdfId] = useRecoilState(selectedPdfIdState);
+  const [message, setMessage] = useRecoilState(messageState);
   const [, setSelectedToc] = useRecoilState(selectedTocState);
   const [pdfFiles, setPdfFiles] = useState<{ id: number; filename: string }[]>(
     [],
@@ -83,6 +85,7 @@ const LeftAside = () => {
   useEffect(() => {
     if (selectedPdfId) {
       fetchPdfData();
+      setMessage([]);
     }
   }, [selectedPdfId]);
 
@@ -112,7 +115,11 @@ const LeftAside = () => {
     console.log('pdfId 변경됨 : ', id);
   };
 
-  const handleTocClick = (id: number, startPage: number, bookmarked: number) => {
+  const handleTocClick = (
+    id: number,
+    startPage: number,
+    bookmarked: number,
+  ) => {
     setSelectedToc({ id, startPage, bookmarked }); // selectedToc 상태 업데이트
   };
 
@@ -160,7 +167,12 @@ const LeftAside = () => {
             {selectedPdfId === file.id && isTocVisible && pdfData && (
               <ul className="toc-list">
                 {pdfData.nodes.map(
-                  (node: { id: number; name: string; start_page: number; bookmarked: number; }) => (
+                  (node: {
+                    id: number;
+                    name: string;
+                    start_page: number;
+                    bookmarked: number;
+                  }) => (
                     <li
                       key={node.id}
                       className="toc-item"

@@ -7,21 +7,21 @@ import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
 import 'github-markdown-css/github-markdown.css';
 import { emojify } from 'node-emoji';
-import { useRecoilValue } from 'recoil';
-import { pdfDataState, selectedPdfIdState } from '@/recoil/atoms';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import {
+  pdfDataState,
+  selectedPdfIdState,
+  Message,
+  messageState,
+} from '@/recoil/atoms';
 import { Data } from '@/components/Graph/Graph';
-
-interface Message {
-  text: string;
-  isUser: boolean;
-}
 
 interface ChatProps {
   sessionId: number;
 }
 
 const Chat: React.FC<ChatProps> = ({ sessionId }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useRecoilState(messageState);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isEnd, setIsEnd] = useState(true);
@@ -54,6 +54,8 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
     const randomNumber = random(1, 1000000);
     if (!isEnd) return new ReadableStream<Uint8Array>();
 
+    console.log('pdfData?.nodes[0]?.filename', pdfData?.nodes[0]?.filename);
+
     const response = await fetch(
       'http://3.38.176.179:8100/question/langchain',
       {
@@ -64,7 +66,9 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
         body: JSON.stringify({
           question: question,
           fileNum: selectedPdfId,
-          fileName: pdfData!.nodes[0].filename,
+          ...(pdfData?.nodes[0]?.filename && {
+            fileName: pdfData?.nodes[0]?.filename,
+          }),
           chatNum: randomNumber,
         }),
       },
@@ -123,8 +127,6 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
 
         const chunk = decoder.decode(value);
         aiMessage += chunk;
-
-        console.log('aiMessage', aiMessage);
 
         setMessages((prev) => {
           const newMessages = [...prev];
@@ -209,7 +211,11 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
             )}
           </div>
         ))}
-        {isLoading && <div>메시지를 처리 중입니다...</div>}
+        {isLoading && (
+          <div className="markdown-body bg-transparent text-inherit">
+            메시지를 처리 중입니다...
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
       <form

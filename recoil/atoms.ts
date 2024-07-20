@@ -15,6 +15,11 @@ export interface AuthState {
   user: User | null;
 }
 
+export interface Message {
+  text: string;
+  isUser: boolean;
+}
+
 export const authAtom = atom<AuthState>({
   key: 'auth',
   default: {
@@ -48,4 +53,10 @@ export const selectedTocState = atom<{
 export const pdfDataState: RecoilState<Data | null> = atom<Data | null>({
   key: 'pdfDataState',
   default: null,
+});
+
+// message
+export const messageState = atom<Message[]>({
+  key: 'messageState',
+  default: [],
 });
