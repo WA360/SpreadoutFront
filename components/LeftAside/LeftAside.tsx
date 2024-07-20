@@ -12,7 +12,7 @@ import { fetchPdfFilesFromServer, fetchPdfDataFromServer } from './actions';
 import axios from 'axios';
 import './styles.css'; // CSS 파일 import
 
-const LeftAside = () => {
+export default function LeftAside() {
   const [, setPdfFile] = useRecoilState(pdfFileState);
   const [selectedPdfId, setSelectedPdfId] = useRecoilState(selectedPdfIdState);
   const [message, setMessage] = useRecoilState(messageState);
@@ -196,5 +196,3 @@ const LeftAside = () => {
     </aside>
   );
 };
-
-export default LeftAside;

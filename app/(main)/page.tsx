@@ -62,7 +62,7 @@ export interface OriginGraphData {
   session_links: OriginSessionLink[];
 }
 
-const Page = () => {
+export default function Page() {
   const selectedPdfId = useRecoilValue(selectedPdfIdState); // 현재 보고 있는 pdf id의 전역상태
   const setPdfFile = useSetRecoilState(pdfFileState); // 현재 보고 있는 pdf파일의 전역상태 설정 함수
   const selectedToc = useRecoilValue(selectedTocState); // 현재 클릭한 챕터의 전역상태
@@ -370,6 +370,4 @@ const Page = () => {
       </div>
     </div>
   );
-};
-
-export default Page;
+}

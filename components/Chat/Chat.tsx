@@ -20,7 +20,7 @@ interface ChatProps {
   sessionId: number;
 }
 
-const Chat: React.FC<ChatProps> = ({ sessionId }) => {
+export default function Chat({ sessionId }: ChatProps) {
   const [messages, setMessages] = useRecoilState(messageState);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -241,6 +241,4 @@ const Chat: React.FC<ChatProps> = ({ sessionId }) => {
       </form>
     </div>
   );
-};
-
-export default Chat;
+}

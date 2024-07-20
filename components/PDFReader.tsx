@@ -15,7 +15,7 @@ interface PDFReaderProps {
   scale: number;
 }
 
-const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber, scale }) => {
+export default function PDFReader({ pageNumber, scale }: PDFReaderProps) {
   const pdfFile = useRecoilValue(pdfFileState);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [visiblePages, setVisiblePages] = useState<number[]>([]);
@@ -115,6 +115,4 @@ const PDFReader: React.FC<PDFReaderProps> = ({ pageNumber, scale }) => {
       </div>
     </div>
   );
-};
-
-export default PDFReader;
+}

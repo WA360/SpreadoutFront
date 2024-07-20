@@ -200,12 +200,12 @@ const getNodeSize = (level: string): number => {
   }
 };
 
-const Graph: React.FC<GraphProps> = ({
+export default function Graph({
   iskey,
   data,
   handleNodeClick,
   handleSessionNodeClick,
-}) => {
+}: GraphProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [transformedData, setTransformedData] = useState<Data>({
     nodes: [],
@@ -571,6 +571,4 @@ const Graph: React.FC<GraphProps> = ({
       <div className="node-title-box">{hoveredNodeName}</div>
     </div>
   );
-};
-
-export default Graph;
+}
