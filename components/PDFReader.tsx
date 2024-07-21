@@ -94,7 +94,7 @@ export default function PDFReader({ pageNumber, scale }: PDFReaderProps) {
           <Document
             file={pdfFile}
             onLoadSuccess={onDocumentLoadSuccess}
-            className="border border-gray-300 rounded w-full"
+            className="w-full"
           >
             {visiblePages.map((pageNum) => (
               <Page

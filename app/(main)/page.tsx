@@ -280,7 +280,7 @@ export default function Page() {
           </TabList>
           {tabs1.map((tab) => (
             <TabPanel key={tab.key}>
-              <div className="pdf-reader-container w-full h-full">
+              <div className="pdf-reader-container w-full h-full overflow-hidden">
                 {tab.key === 'diagram' || tab.key === 'bookmarked' ? (
                   <Graph
                     iskey={tab.key}
