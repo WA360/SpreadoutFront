@@ -176,7 +176,7 @@ export default function Chat({ sessionId }: ChatProps) {
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-full border">
+    <div className="flex flex-col h-full border overflow-hidden">
       <div className="flex flex-col flex-1 p-[8px] overflow-auto">
         {messages.map((message, index) => (
           <div
@@ -189,7 +189,7 @@ export default function Chat({ sessionId }: ChatProps) {
               </div>
             )}
             <div
-              className={`p-3 rounded-lg shadow-md max-w-[70%] ${message.isUser ? 'bg-white text-gray-800 border shadow-md' : 'bg-white text-gray-800 border shadow-md'}`}
+              className={`p-3 rounded-lg shadow-md max-w-[70%] text-xl ${message.isUser ? 'bg-white text-gray-800 border shadow-md' : 'bg-white text-gray-800 border shadow-md'}`}
             >
               {message.isUser ? (
                 message.text
@@ -198,6 +198,7 @@ export default function Chat({ sessionId }: ChatProps) {
                   <Markdown
                     rehypePlugins={[rehypeRaw]}
                     remarkPlugins={[remarkGfm]}
+                    className={'text-xl'}
                   >
                     {DOMPurify.sanitize(message.text)}
                   </Markdown>
@@ -212,7 +213,7 @@ export default function Chat({ sessionId }: ChatProps) {
           </div>
         ))}
         {isLoading && (
-          <div className="markdown-body bg-transparent text-inherit">
+          <div className="markdown-body bg-transparent text-inherit text-xl">
             메시지를 처리 중입니다...
           </div>
         )}
