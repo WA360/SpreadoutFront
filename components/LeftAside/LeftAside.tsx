@@ -132,7 +132,7 @@ export default function LeftAside() {
   }, []);
 
   return (
-    <aside className="flex flex-col w-80 shrink-0 border-r p-2">
+    <aside className="relative flex flex-col w-80 shrink-0 border-r p-2">
       <label
         htmlFor="file_upload"
         className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md cursor-pointer hover:bg-blue-700 transition-colors duration-300"
@@ -146,7 +146,7 @@ export default function LeftAside() {
         className="hidden"
         onChange={handleFileChange}
       />
-      <ul className="scrollable-list h-[calc(100%-48px)] overflow-auto">
+      <ul className="relative scrollable-list h-[calc(100%-48px)] overflow-auto scrollbar-hide">
         {pdfFiles.map((file) => (
           <li
             key={file.id}
@@ -193,6 +193,7 @@ export default function LeftAside() {
           </li>
         ))}
       </ul>
+      <div className="absolute bottom-0 left-0 w-full h-20 bg-custom-gradient pointer-events-none"></div>
     </aside>
   );
 }
