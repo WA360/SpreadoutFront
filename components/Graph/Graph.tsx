@@ -263,8 +263,6 @@ export default function Graph({
   useEffect(() => {
     if (!svgRef.current || transformedData.nodes.length === 0) return;
 
-    console.log("transformedData", transformedData);
-
     const width = dimensions.width;
     const height = dimensions.height;
 
@@ -486,7 +484,7 @@ export default function Graph({
   };
 
   return (
-    <div className="relative">
+    <div className="relative h-full">
       <div className="flex">
         <input
           type="text"
@@ -552,7 +550,17 @@ export default function Graph({
           </div>
         </div>
       )}
-      {hoveredNodeName && <div className="node-title-box">{hoveredNodeName}{hoveredNodeSummary && <><br/><br/>{hoveredNodeSummary}</>}</div>}
+      {hoveredNodeSummary && hoveredNodeName && (
+        <div className="node-title-box flex flex-col">
+          <strong className="mt-auto">{hoveredNodeName}</strong>
+          {hoveredNodeSummary && (
+            <>
+              <br />
+              {hoveredNodeSummary}
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
