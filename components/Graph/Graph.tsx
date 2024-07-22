@@ -21,6 +21,7 @@ interface Node extends d3.SimulationNodeDatum {
   bookmarked: number;
   pdf_file_id: number;
   filename: string;
+  summary: string;
 }
 
 // Link 인터페이스 정의
@@ -34,18 +35,12 @@ interface Link extends d3.SimulationLinkDatum<Node> {
   pdf_file_id: number;
 }
 
-// Custom Link 인터페이스 정의
-interface CustomLink {
-  source?: number | Node;
-  target?: number | Node;
-  pdfId: number | Node;
-}
-
 // SessionNode 인터페이스 정의
 interface SessionNode extends d3.SimulationNodeDatum {
   id: string;
   chapter_id: string;
   name: string;
+  summary: string;
   level: string;
 }
 
@@ -215,6 +210,7 @@ export default function Graph({
   const [targetNode, setTargetNode] = useState<string>('');
 
   const [hoveredNodeName, setHoveredNodeName] = useState<string>('');
+  const [hoveredNodeSummary, setHoveredNodeSummary] = useState<string>('');
 
   useEffect(() => {
     const handleResize = () => {
@@ -266,6 +262,8 @@ export default function Graph({
 
   useEffect(() => {
     if (!svgRef.current || transformedData.nodes.length === 0) return;
+
+    console.log("transformedData", transformedData);
 
     const width = dimensions.width;
     const height = dimensions.height;
@@ -345,12 +343,14 @@ export default function Graph({
       })
       .on('mouseover', (event, d: Node | SessionNode) => {
         setHoveredNodeName(d.name);
+        setHoveredNodeSummary(d.summary);
         d3.select(event.currentTarget).classed('node-highlight', true); // 노드 강조 클래스 추가
         const text = svg.selectAll('text').filter((node) => node === d);
         text.style('display', 'block'); // 제목 강조 표시
       })
       .on('mouseout', (event) => {
         setHoveredNodeName('');
+        setHoveredNodeSummary('');
         d3.select(event.currentTarget).classed('node-highlight', false); // 노드 강조 클래스 제거
         svg.selectAll('text').style('display', 'none'); // 제목 강조 제거
       })
@@ -552,7 +552,7 @@ export default function Graph({
           </div>
         </div>
       )}
-      <div className="node-title-box">{hoveredNodeName}</div>
+      {hoveredNodeName && <div className="node-title-box">{hoveredNodeName}{hoveredNodeSummary && <><br/><br/>{hoveredNodeSummary}</>}</div>}
     </div>
   );
 }
