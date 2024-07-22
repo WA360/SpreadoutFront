@@ -71,6 +71,7 @@ export interface GraphProps {
 // 데이터 변환 함수
 const transformData = (iskey: string, data: any): Data => {
   // 노드 변환
+  let nodeIds: string[] = [];
   let nodes: Node[] = data.nodes.map((node: any) => ({
     ...node,
     id: String(node.id), // id를 string으로 변환
@@ -78,18 +79,23 @@ const transformData = (iskey: string, data: any): Data => {
     level: String(node.level),
   }));
 
-  if (iskey === 'bookmarked') {
-    nodes = nodes.filter((node) => node.bookmarked === 1);
-  }
-
   // 세션노드 변환
-  const session_nodes: SessionNode[] = data.session_nodes.map(
+  let session_nodes: SessionNode[] = data.session_nodes.map(
     (session_node: any) => ({
       ...session_node,
       id: String(session_node.id), // id를 string으로 변환
       level: String(session_node.level),
     }),
   );
+
+  if (iskey === 'bookmarked') {
+    nodes = nodes.filter((node) => {
+      if (node.bookmarked === 1) {
+        nodeIds.push(node.id);
+      }
+      return node.bookmarked === 1;
+    });
+  }
 
   // 챕터 링크 변환
   const links: Link[] = data.links
@@ -128,6 +134,19 @@ const transformData = (iskey: string, data: any): Data => {
       source: String(session_link.source),
       target: String(session_link.target),
     }));
+
+  if (iskey === 'bookmarked') {
+    let sessionIds: string[] = [];
+    session_links.map((session_link) => {
+      if (nodeIds.includes(String(session_link.target))) {
+        sessionIds.push(String(session_link.source));
+      }
+    });
+
+    session_nodes = session_nodes.filter((session_node) => {
+      return sessionIds.includes(session_node.id);
+    });
+  }
 
   return { nodes, links, session_nodes, session_links };
 };
