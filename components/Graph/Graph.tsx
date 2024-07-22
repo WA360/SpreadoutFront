@@ -42,6 +42,7 @@ interface SessionNode extends d3.SimulationNodeDatum {
   name: string;
   summary: string;
   level: string;
+  bookmarked: number;
 }
 
 // SessionLink 인터페이스 정의
@@ -78,18 +79,21 @@ const transformData = (iskey: string, data: any): Data => {
     level: String(node.level),
   }));
 
-  if (iskey === 'bookmarked') {
-    nodes = nodes.filter((node) => node.bookmarked === 1);
-  }
-
   // 세션노드 변환
-  const session_nodes: SessionNode[] = data.session_nodes.map(
+  let session_nodes: SessionNode[] = data.session_nodes.map(
     (session_node: any) => ({
       ...session_node,
       id: String(session_node.id), // id를 string으로 변환
       level: String(session_node.level),
     }),
   );
+
+  if (iskey === 'bookmarked') {
+    console.log('bookmarked === 1 필터');
+    console.log('data@@@@', data);
+    nodes = nodes.filter((node) => node.bookmarked === 1);
+    session_nodes = session_nodes.filter((node) => node.bookmarked === 1);
+  }
 
   // 챕터 링크 변환
   const links: Link[] = data.links
