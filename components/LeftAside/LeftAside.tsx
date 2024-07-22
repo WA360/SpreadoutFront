@@ -195,4 +195,4 @@ export default function LeftAside() {
       </ul>
     </aside>
   );
-};
+}

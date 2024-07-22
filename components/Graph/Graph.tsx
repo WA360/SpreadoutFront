@@ -105,10 +105,6 @@ const transformData = (iskey: string, data: any): Data => {
       const targetExists = nodes.find(
         (node) => node.id === String(link.target),
       );
-      if (!sourceExists)
-        console.warn(`Node not found for source: ${link.source}`);
-      if (!targetExists)
-        console.warn(`Node not found for target: ${link.target}`);
       return sourceExists && targetExists;
     })
     .map((link: any) => ({
@@ -129,12 +125,6 @@ const transformData = (iskey: string, data: any): Data => {
         // target에 챕터노드
         (node) => node.id === String(session_link.target),
       );
-      if (!sourceExists)
-        console.warn(
-          `SessionNode not found for source: ${session_link.source}`,
-        );
-      if (!targetExists)
-        console.warn(`Node not found for target: ${session_link.target}`);
       return sourceExists && targetExists;
     })
     .map((session_link: any) => ({
@@ -242,7 +232,6 @@ export default function Graph({
   }, []);
 
   useEffect(() => {
-    console.log(iskey, 'node.bookmarked');
     setTransformedData(transformData(iskey, data));
     setPdfData(transformData(iskey, data));
   }, [data]);
@@ -457,12 +446,7 @@ export default function Graph({
   };
 
   const customLink = async () => {
-    console.log('test');
-    console.log('sourceNode', sourceNode);
-    console.log('targetNode', targetNode);
-    console.log('selectedPdfId', selectedPdfId);
     const token = getCookieValue('token');
-    console.log('token', token);
     try {
       const response = await fetch(
         'http://3.38.176.179:4000/pdf/bookmark/connection',

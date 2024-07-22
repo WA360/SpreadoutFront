@@ -72,6 +72,7 @@ export default function Page() {
     { key: 'diagram', title: 'Diagram' },
     { key: 'bookmarked', title: 'Bookmarked' }, // 기본 포함 탭
   ]);
+  const [openTabOrder, setOpenTabOrder] = useState<number[]>([0, 1]);
   const [activeTab1, setActiveTab1] = useState<number>(0); // Tabs1에서 현재 활성화 돼있는 탭을 구분하기 위한 상태
   // Tabs1에 속한 Tab마다 pageNumber를 설정해주기 위한 상태
   const [tabPageNumbers, setTabPageNumbers] = useState<{
@@ -127,15 +128,22 @@ export default function Page() {
     setTabPageNumbers({ ...tabPageNumbers, [newTabKey]: pageNumber });
   };
 
-  const removeTab1 = (key: string) => {
+  const removeTab1 = (key: string, index: number) => {
     // Tabs1에 Tab삭제하는 함수
     const newTabs = tabs1.filter((tab) => tab.key !== key);
-    const newIndex =
-      tabs1.findIndex((tab) => tab.key === key) === activeTab1 && activeTab1 > 0
-        ? activeTab1 - 1
-        : activeTab1;
+    // openTabOrder에서 삭제된 탭의 인덱스를 제거하고, 그 이상의 인덱스는 1씩 감소
+    const newOpenTabOrder = openTabOrder.reduce<number[]>((acc, current) => {
+      if (current < index) {
+          acc.push(current);  // 삭제 인덱스 전의 값은 그대로 유지
+      } else if (current > index) {
+          acc.push(current - 1);  // 삭제 인덱스 이후의 값은 1 감소
+      }
+      return acc;
+    }, []);
+
+    setOpenTabOrder(newOpenTabOrder);
+    setActiveTab1(newOpenTabOrder[0] || 0); // 활성 Tab 설정
     setTabs1(newTabs); // Tab 정보 재설정
-    setActiveTab1(newIndex); // 활성 Tab 설정
     const { [key]: _, ...newTabPageNumbers } = tabPageNumbers;
     setTabPageNumbers(newTabPageNumbers); // Tab pdfReader에 pageNumber 전달
   };
@@ -161,8 +169,6 @@ export default function Page() {
       });
       const data = response.data;
 
-      console.log('data---->', data);
-
       setGraphData(data);
 
       // PDF URL 추출
@@ -176,7 +182,6 @@ export default function Page() {
           type: 'application/pdf',
         });
         setPdfFile(pdfFile);
-        console.log('pdf 가져옴 : ', pdfFile);
       }
     } catch (error) {
       console.error('Error fetching PDF data:', error);
@@ -186,7 +191,6 @@ export default function Page() {
   const handleNodeClick = async (pageNumber: number) => {
     setTabs1((prevTabs) => {
       const newTabKey = `tab-${prevTabs.length}`; // prevTabs.length를 사용하여 새로운 탭 키 생성
-      console.log(newTabKey); // 새 탭 키 출력
       const newTabs = [
         ...prevTabs,
         { key: newTabKey, title: `Page ${pageNumber}` },
@@ -203,7 +207,6 @@ export default function Page() {
   const handleSessionNodeClick = async (sessionId: number) => {
     setTabs2((prevTabs) => {
       const newTabKey = `session-tab-${prevTabs.length}`; // prevTabs.length를 사용하여 새로운 탭 키 생성
-      console.log(newTabKey); // 새 탭 키 출력
       const newTabs = [
         ...prevTabs,
         { key: newTabKey, title: `Session ${sessionId}` },
@@ -226,7 +229,6 @@ export default function Page() {
 
   const handleBookmarkedButtonClick = async (chapterId: number) => {
     setIsBookmark((isBookmark + 1) % 2);
-    console.log('api 작동!');
     try {
       const token = getCookieValue('token');
       const response = await axios.put(
@@ -247,9 +249,17 @@ export default function Page() {
     }
   };
 
+  // pdf 바뀔 때 초기화 로직
   useEffect(() => {
     if (selectedPdfId !== null) {
       fetchGraphData(selectedPdfId); // pdf파일 클릭시 선택된 pdfId 전달하고, url, nodes, links 가져오기
+      // tab 초기화
+      setTabs1([
+        { key: 'diagram', title: 'Diagram' },
+        { key: 'bookmarked', title: 'Bookmarked' },
+      ]);
+      setActiveTab1(0); // 다이어그램 활성화
+      setOpenTabOrder([0,1]); // 히스토리 업데이트
     }
   }, [selectedPdfId]);
 
@@ -259,12 +269,24 @@ export default function Page() {
     }
   }, [selectedToc]);
 
+  useEffect(() => {
+    setOpenTabOrder((prevOrder) => {
+      const newOrder = [
+        activeTab1,
+        ...prevOrder.filter((index) => index !== activeTab1),
+      ];
+      return newOrder;
+    });
+  }, [activeTab1]);
+
   return (
     <div className="relative h-full">
       <div className="flex h-full gap-2">
         <Tabs
           selectedIndex={activeTab1}
-          onSelect={(tabIndex) => setActiveTab1(tabIndex)}
+          onSelect={(tabIndex) => {
+            setActiveTab1(tabIndex);
+          }}
           className="flex flex-col flex-1 h-full w-full min-w-[700px]"
         >
           <TabList>
@@ -273,7 +295,10 @@ export default function Page() {
                 {tab.title}
                 &nbsp;
                 {index > 1 && (
-                  <button onClick={() => removeTab1(tab.key)}>x</button>
+                  <button onClick={(e) => {
+                    e.stopPropagation();
+                    removeTab1(tab.key, index)}
+                  }>x</button>
                 )}
               </Tab>
             ))}
