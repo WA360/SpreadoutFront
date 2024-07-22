@@ -9,7 +9,7 @@
 /* 각 파일 항목의 스타일 */
 .scrollable-list {
   list-style: none;
-  padding: 0;
+  padding: 0 0 3rem 0;
   margin: 0;
 }
 
