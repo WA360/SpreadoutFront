@@ -42,6 +42,7 @@ interface SessionNode extends d3.SimulationNodeDatum {
   name: string;
   summary: string;
   level: string;
+  bookmarked: number;
 }
 
 // SessionLink 인터페이스 정의
