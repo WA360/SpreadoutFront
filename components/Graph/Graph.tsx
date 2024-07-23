@@ -22,6 +22,7 @@ interface Node extends d3.SimulationNodeDatum {
   pdf_file_id: number;
   filename: string;
   summary: string;
+  keywords: string[];
 }
 
 // Link 인터페이스 정의
@@ -497,9 +498,19 @@ export default function Graph({
       return;
     }
     // 검색어를 포함하는 노드 필터링
-    const filteredNodes = transformedData.nodes.filter((node) =>
-      node.name.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
+    const filteredNodes = transformedData.nodes.filter((node) => {
+      // name 속성 검색
+      const nameMatch = node.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+
+      // keywords 배열 검색
+      const keywordsMatch = node.keywords.some((keyword) =>
+        keyword.toLowerCase().includes(searchQuery.toLowerCase()),
+      );
+
+      return nameMatch || keywordsMatch;
+    });
 
     setSearchResults(filteredNodes);
   };
