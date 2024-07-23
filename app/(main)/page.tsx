@@ -90,8 +90,6 @@ export default function Page() {
   }>({ chat: 0 });
 
   const [graphData, setGraphData] = useState<OriginGraphData | null>(null); // express서버에서 받아온 그래프 데이터가 담기는 상태
-
-  const [scale, setScale] = useState(1.5); // pdf 크기가 담기는 상태
   const [showScale, setShowScale] = useState(false); // scale 변경 시 표시 상태
   const [leftWidth, setLeftWidth] = useState(50); // 왼쪽 패널의 초기 너비를 50%로 설정
   const [isDragging, setIsDragging] = useState(false);
@@ -125,22 +123,6 @@ export default function Page() {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [handleMouseMove, handleMouseUp]);
-
-  const handleZoomIn = () => {
-    setScale((prevScale) => {
-      const newScale = prevScale + 0.1; // 10%씩 확대
-      setShowScale(true);
-      return newScale;
-    });
-  };
-
-  const handleZoomOut = () => {
-    setScale((prevScale) => {
-      const newScale = Math.max(prevScale - 0.1, 0.5); // 10%씩 축소, 최소 0.5배 제한
-      setShowScale(true);
-      return newScale;
-    });
-  };
 
   useEffect(() => {
     if (showScale) {
@@ -370,29 +352,7 @@ export default function Page() {
                     >
                       {isBookmark ? '북마크 됨' : '북마크 안됨'}
                     </button>
-                    <div className="zoom-controls">
-                      <button
-                        className="absolute top-4 right-16 z-10 bg-white p-2 rounded shadow"
-                        onClick={handleZoomIn}
-                      >
-                        +
-                      </button>
-                      <button
-                        className="absolute top-4 right-24 z-10 bg-white p-2 rounded shadow"
-                        onClick={handleZoomOut}
-                      >
-                        -
-                      </button>
-                    </div>
-                    <PDFReader
-                      pageNumber={tabPageNumbers[tab.key]}
-                      scale={scale}
-                    />
-                    {showScale && (
-                      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-2 py-1 rounded">
-                        {`${Math.round(scale * 100)}%`}
-                      </div>
-                    )}
+                    <PDFReader pageNumber={tabPageNumbers[tab.key]} />
                   </div>
                 )}
               </div>
