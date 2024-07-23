@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import * as d3 from 'd3';
 import { OriginGraphData } from '@/app/(main)/page';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -211,6 +211,7 @@ export default function Graph({
   handleNodeClick,
   handleSessionNodeClick,
 }: GraphProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [transformedData, setTransformedData] = useState<Data>({
     nodes: [],
@@ -246,6 +247,26 @@ export default function Graph({
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const updateDimensions = useCallback(() => {
+    if (containerRef.current) {
+      const { width, height } = containerRef.current.getBoundingClientRect();
+      setDimensions({ width, height });
+    }
+  }, []);
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(updateDimensions);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    updateDimensions(); // 초기 크기 설정
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [updateDimensions]);
 
   useEffect(() => {
     setTransformedData(transformData(iskey, data));
@@ -466,7 +487,7 @@ export default function Graph({
     return () => {
       simulation.stop();
     };
-  }, [transformedData, searchResults]); // searchResults를 dependency로 추가
+  }, [transformedData, dimensions, searchResults]); // searchResults를 dependency로 추가
 
   const handleSearch = () => {
     const trimmedQuery = searchQuery.trim();
@@ -531,7 +552,7 @@ export default function Graph({
   };
 
   return (
-    <div className="relative h-full">
+    <div ref={containerRef} className="relative h-full w-full">
       <div className="flex">
         <input
           type="text"
