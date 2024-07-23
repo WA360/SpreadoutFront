@@ -44,6 +44,7 @@ interface SessionNode extends d3.SimulationNodeDatum {
   summary: string;
   level: string;
   bookmarked: number;
+  keywords: string[];
 }
 
 // SessionLink 인터페이스 정의
@@ -233,6 +234,11 @@ export default function Graph({
 
   const [hoveredNodeName, setHoveredNodeName] = useState<string>('');
   const [hoveredNodeSummary, setHoveredNodeSummary] = useState<string>('');
+  const [hoveredNodeKeywords, setHoveredNodeKeywords] = useState<string>('');
+
+  useEffect(() => {
+    console.log('hoveredNodeKeywords', hoveredNodeKeywords);
+  }, [hoveredNodeKeywords]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -405,6 +411,7 @@ export default function Graph({
       .on('mouseover', (event, d: Node | SessionNode) => {
         setHoveredNodeName(d.name);
         setHoveredNodeSummary(d.summary);
+        setHoveredNodeKeywords(d.keywords.join(', '));
         d3.select(event.currentTarget).classed('node-highlight', true); // 노드 강조 클래스 추가
         const text = svg.selectAll('text').filter((node) => node === d);
         text.style('display', 'block'); // 제목 강조 표시
@@ -412,6 +419,7 @@ export default function Graph({
       .on('mouseout', (event) => {
         setHoveredNodeName('');
         setHoveredNodeSummary('');
+        setHoveredNodeKeywords('');
         d3.select(event.currentTarget).classed('node-highlight', false); // 노드 강조 클래스 제거
         svg.selectAll('text').style('display', 'none'); // 제목 강조 제거
       })
@@ -423,7 +431,7 @@ export default function Graph({
           .on('end', (event) => dragended(event, simulation)),
       );
 
-    node.append('title').text((d) => d.id);
+    // node.append('title').text((d) => d.id);
 
     const text = g
       .append('g')
@@ -636,7 +644,11 @@ export default function Graph({
           <strong className="mt-auto">{hoveredNodeName}</strong>
           {hoveredNodeSummary && (
             <>
-              <br />
+              <p className="mt-7 text-slate-300 text-3xl leading-normal">
+                키워드: <br />
+                {hoveredNodeKeywords}
+              </p>
+              <hr className="border my-4" />
               {hoveredNodeSummary}
             </>
           )}
