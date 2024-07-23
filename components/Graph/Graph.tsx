@@ -542,12 +542,14 @@ export default function Graph({
         <button className="search-button" onClick={handleSearch}>
           검색
         </button>
-        <button
-          className="ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => setIsModalOpen(true)}
-        >
-          커스텀링크
-        </button>
+        {iskey === 'bookmarked' && (
+          <button
+            className="ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={() => setIsModalOpen(true)}
+          >
+            커스텀링크
+          </button>
+        )}
       </div>
       <svg ref={svgRef}></svg>
       {isModalOpen && (
