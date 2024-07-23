@@ -326,14 +326,35 @@ export default function Graph({
 
     svg.call(zoom);
 
+    // similarity가 -1인 경우는 기존 연결대로 연결
+    const filteredLinks = [
+      ...transformedData.links,
+      ...transformedData.session_links,
+    ].filter((link) => (link as Link).similarity === -1);
+
     const link = g
       .append('g')
       .attr('stroke', '#999')
       .attr('stroke-opacity', 0.6)
       .selectAll('line')
-      .data([...transformedData.links, ...transformedData.session_links]) // 세션 링크 추가
+      .data(filteredLinks) // filtered links
       .join('line')
       .attr('stroke-width', 2);
+
+    // similarity가 -1이 아닌 링크는 약한 연결로 연결
+    const normalLinks = [
+      ...transformedData.links,
+      ...transformedData.session_links,
+    ].filter((link) => (link as Link).similarity !== -1);
+
+    const normalLinksGroup = g
+      .append('g')
+      .attr('stroke', '#cecece')
+      .attr('stroke-opacity', 0.6)
+      .selectAll('line')
+      .data(normalLinks) // normal links
+      .join('line')
+      .attr('stroke-width', 0.5);
 
     const node = g
       .append('g')
@@ -422,6 +443,12 @@ export default function Graph({
 
     simulation.on('tick', () => {
       link
+        .attr('x1', (d) => (d.source as Node | SessionNode).x!)
+        .attr('y1', (d) => (d.source as Node | SessionNode).y!)
+        .attr('x2', (d) => (d.target as Node | SessionNode).x!)
+        .attr('y2', (d) => (d.target as Node | SessionNode).y!);
+
+      normalLinksGroup
         .attr('x1', (d) => (d.source as Node | SessionNode).x!)
         .attr('y1', (d) => (d.source as Node | SessionNode).y!)
         .attr('x2', (d) => (d.target as Node | SessionNode).x!)
