@@ -35,28 +35,24 @@
 }
 
 /* 목차 항목의 스타일 */
-.toc-item {
-  padding: 4px 0; /* 각 목차 항목의 패딩 */
-}
 
 .file-info {
   display: flex;
-  flex-direction: column;
-  margin-bottom: 8px;
+  align-items: center;
 }
 
 .toc-toggle-button {
-  margin-top: 4px; /* 파일 제목과 토글 버튼 사이에 간격을 추가 */
-  padding: 4px 8px;
-  background-color: #4caf50; /* 버튼 색상 */
-  color: white;
+  background: none;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
+  padding: 0;
+  margin-left: 8px; /* 파일명과 아이콘 사이의 간격 */
 }
 
-.toc-toggle-button:hover {
-  background-color: #45a049; /* 버튼 호버 색상 */
+.toc-toggle-button svg {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle; /* SVG 아이콘을 텍스트와 동일한 줄에 맞춤 */
 }
 
 .toc-list {
@@ -66,7 +62,12 @@
 
 .toc-item {
   cursor: pointer;
+  padding: 4px 0; /* 각 목차 항목의 패딩 */
   margin-bottom: 4px;
+}
+
+.ml-2 {
+  margin-left: 8px; /* 파일명과 아이콘 사이의 간격 */
 }
 
 .toc-item:hover {
