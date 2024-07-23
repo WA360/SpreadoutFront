@@ -205,20 +205,20 @@ export default function Chat({ sessionId }: ChatProps) {
               </div>
             )}
             <div
-              className={`p-3 rounded-lg shadow-md max-w-[70%] text-xl ${message.isUser ? 'bg-white text-gray-800 border shadow-md' : 'bg-white text-gray-800 border shadow-md'}`}
+              className={`p-3 rounded-lg shadow-md max-w-[70%] text-2xl ${message.isUser ? 'bg-white text-gray-800 border shadow-md' : 'bg-white text-gray-800 border shadow-md'}`}
             >
               <div className="markdown-body bg-transparent text-inherit">
                 <Markdown
                   rehypePlugins={[rehypeRaw]}
                   remarkPlugins={[remarkGfm]}
-                  className={'text-xl [&>p:last-child]:mb-0'}
+                  className={'text-2xl [&>p:last-child]:mb-0'}
                 >
                   {DOMPurify.sanitize(message.text)}
                 </Markdown>
               </div>
             </div>
             {message.isUser && (
-              <div className="text-3xl shadow-md border rounded-full flex items-center justify-center ml-2 h-10 w-10">
+              <div className="text-4xl shadow-md border rounded-full flex items-center justify-center ml-2 h-10 w-10">
                 😊
               </div>
             )}
@@ -226,7 +226,7 @@ export default function Chat({ sessionId }: ChatProps) {
         ))}
         {isLoading && (
           <div className="flex items-start mb-4 justify-start">
-            <div className="text-3xl shadow-md border rounded-full flex items-center justify-center mr-2 h-10 w-10">
+            <div className="text-4xl shadow-md border rounded-full flex items-center justify-center mr-2 h-10 w-10">
               🤖
             </div>
             <div className="flex p-4 rounded-lg bg-white text-gray-800 border shadow-md items-center justify-center space-x-2">
