@@ -126,7 +126,6 @@ export default function LeftAside() {
   };
 
   const toggleTocVisibility = (id: number) => {
-    console.log('test');
     if (selectedPdfId === id) {
       setIsTocVisible(!isTocVisible); // 목차 가시성 토글
     } else {
@@ -166,7 +165,6 @@ export default function LeftAside() {
               // 현재 클릭된 요소가 바로 이 li인 경우에만 이벤트 처리
               if (e.target === e.currentTarget) {
                 e.stopPropagation();
-                console.log('Clicked LI:', e.currentTarget);
                 toggleTocVisibility(file.id);
               }
             }}

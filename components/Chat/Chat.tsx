@@ -162,7 +162,6 @@ export default function Chat({ sessionId }: ChatProps) {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    console.log('test');
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage(e as any); // 타입 캐스팅
