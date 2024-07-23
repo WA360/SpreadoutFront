@@ -10,7 +10,7 @@ export default function Header() {
           width="45"
           height="45"
           stroke="black"
-          stroke-width="3"
+          strokeWidth="3"
         >
           <circle cx="32" cy="20" r="6" fill="black" />
           <line x1="32" y1="20" x2="58" y2="50" />
