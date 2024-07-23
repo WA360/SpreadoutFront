@@ -60,3 +60,9 @@ export const messageState = atom<Message[]>({
   key: 'messageState',
   default: [],
 });
+
+// leftAsideVisible
+export const leftAsideVisibleState = atom<boolean>({
+  key: 'leftAsideVisibleState',
+  default: true,
+});

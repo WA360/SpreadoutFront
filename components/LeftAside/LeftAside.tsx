@@ -7,6 +7,7 @@ import {
   selectedPdfIdState,
   selectedTocState,
   messageState,
+  leftAsideVisibleState,
 } from '../../recoil/atoms';
 import { fetchPdfFilesFromServer, fetchPdfDataFromServer } from './actions';
 import axios from 'axios';
@@ -23,8 +24,15 @@ export default function LeftAside() {
   const [pdfData, setPdfData] = useState<any>(null);
   const [isTocVisible, setIsTocVisible] = useState(false); // 목차 가시성 토글 상태
   const pdfListRef = useRef<HTMLUListElement>(null);
+  const [leftAsideVisible, setLeftAsideVisible] = useRecoilState(
+    leftAsideVisibleState,
+  );
 
   ////////////////////////////////////////////////////////////////////////////////////////
+  const toggleAside = () => {
+    setLeftAsideVisible(!leftAsideVisible);
+  };
+
   const getCookieValue = (name: string) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -139,104 +147,131 @@ export default function LeftAside() {
   }, []);
 
   return (
-    <aside className="relative flex flex-col w-80 shrink-0 border-r p-2">
-      <label
-        htmlFor="file_upload"
-        className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md cursor-pointer hover:bg-blue-700 transition-colors duration-300"
+    <div
+      className={`group transition-all duration-300 ease-in-out ${leftAsideVisible ? 'w-80' : 'w-0'}`}
+    >
+      <aside
+        className={`h-full relative flex flex-col w-80 shrink-0 border-r p-2 transition-all duration-300 ease-in-out ${leftAsideVisible ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        파일 업로드
-      </label>
-      <input
-        id="file_upload"
-        type="file"
-        accept="application/pdf"
-        className="hidden"
-        onChange={handleFileChange}
-      />
-      <ul
-        className="relative scrollable-list h-[calc(100%-48px)] overflow-auto scrollbar-hide"
-        ref={pdfListRef}
-      >
-        {pdfFiles.map((file) => (
-          <li
-            key={file.id}
-            className="scrollable-list-item cursor-pointer"
-            onClick={(e) => {
-              // 현재 클릭된 요소가 바로 이 li인 경우에만 이벤트 처리
-              if (e.target === e.currentTarget) {
-                e.stopPropagation();
-                toggleTocVisibility(file.id);
-              }
-            }}
-          >
-            <div className="file-info pointer-events-none">
-              <button className="toc-toggle-button">
-                {selectedPdfId === file.id && isTocVisible ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="icon icon-tabler icon-tabler-chevron-down"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    strokeWidth="2"
-                    stroke="currentColor"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="icon icon-tabler icon-tabler-chevron-right"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    strokeWidth="2"
-                    stroke="currentColor"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <polyline points="9 6 15 12 9 18" />
-                  </svg>
-                )}
-              </button>
-              <span className="ml-2">{file.filename}</span>
-            </div>
-            {selectedPdfId === file.id && isTocVisible && pdfData && (
-              <ul className="toc-list">
-                {pdfData.nodes.map(
-                  (node: {
-                    id: number;
-                    name: string;
-                    start_page: number;
-                    bookmarked: number;
-                  }) => (
-                    <li
-                      key={node.id}
-                      className="toc-item"
-                      onClick={() => {
-                        handleTocClick(
-                          node.id,
-                          node.start_page,
-                          node.bookmarked,
-                        );
-                      }}
+        <label
+          htmlFor="file_upload"
+          className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md cursor-pointer hover:bg-blue-700 transition-colors duration-300"
+        >
+          파일 업로드
+        </label>
+        <input
+          id="file_upload"
+          type="file"
+          accept="application/pdf"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <ul
+          className="relative scrollable-list h-[calc(100%-48px)] overflow-auto scrollbar-hide"
+          ref={pdfListRef}
+        >
+          {pdfFiles.map((file) => (
+            <li
+              key={file.id}
+              className="scrollable-list-item cursor-pointer"
+              onClick={(e) => {
+                // 현재 클릭된 요소가 바로 이 li인 경우에만 이벤트 처리
+                if (e.target === e.currentTarget) {
+                  e.stopPropagation();
+                  toggleTocVisibility(file.id);
+                }
+              }}
+            >
+              <div className="file-info pointer-events-none">
+                <button className="toc-toggle-button">
+                  {selectedPdfId === file.id && isTocVisible ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="icon icon-tabler icon-tabler-chevron-down"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     >
-                      {node.name}
-                    </li>
-                  ),
-                )}
-              </ul>
-            )}
-          </li>
-        ))}
-      </ul>
-      <div className="absolute bottom-0 left-0 w-full h-20 bg-custom-gradient pointer-events-none"></div>
-    </aside>
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="icon icon-tabler icon-tabler-chevron-right"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <polyline points="9 6 15 12 9 18" />
+                    </svg>
+                  )}
+                </button>
+                <span className="ml-2">{file.filename}</span>
+              </div>
+              {selectedPdfId === file.id && isTocVisible && pdfData && (
+                <ul className="toc-list">
+                  {pdfData.nodes.map(
+                    (node: {
+                      id: number;
+                      name: string;
+                      start_page: number;
+                      bookmarked: number;
+                    }) => (
+                      <li
+                        key={node.id}
+                        className="toc-item"
+                        onClick={() => {
+                          handleTocClick(
+                            node.id,
+                            node.start_page,
+                            node.bookmarked,
+                          );
+                        }}
+                      >
+                        {node.name}
+                      </li>
+                    ),
+                  )}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+        <div className="absolute bottom-0 left-0 w-full h-20 bg-custom-gradient pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-full h-[60px] -translate-y-full flex">
+          <button
+            className="ml-auto w-12 h-full opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all"
+            onClick={toggleAside}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-full h-full text-gray-500"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+        </div>
+      </aside>
+    </div>
   );
 }
