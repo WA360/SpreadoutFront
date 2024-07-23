@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import PDFReader from '@/components/PDFReader';
 import Graph from '@/components/Graph/Graph';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -93,6 +93,38 @@ export default function Page() {
 
   const [scale, setScale] = useState(1.5); // pdf 크기가 담기는 상태
   const [showScale, setShowScale] = useState(false); // scale 변경 시 표시 상태
+  const [leftWidth, setLeftWidth] = useState(50); // 왼쪽 패널의 초기 너비를 50%로 설정
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging || !containerRef.current) return;
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const newLeftWidth =
+        ((e.clientX - containerRect.left) / containerRect.width) * 100;
+      setLeftWidth(Math.max(30, Math.min(70, newLeftWidth)));
+    },
+    [isDragging],
+  );
+
+  useEffect(() => {
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [handleMouseMove, handleMouseUp]);
 
   const handleZoomIn = () => {
     setScale((prevScale) => {
@@ -134,9 +166,9 @@ export default function Page() {
     // openTabOrder에서 삭제된 탭의 인덱스를 제거하고, 그 이상의 인덱스는 1씩 감소
     const newOpenTabOrder = openTabOrder.reduce<number[]>((acc, current) => {
       if (current < index) {
-          acc.push(current);  // 삭제 인덱스 전의 값은 그대로 유지
+        acc.push(current); // 삭제 인덱스 전의 값은 그대로 유지
       } else if (current > index) {
-          acc.push(current - 1);  // 삭제 인덱스 이후의 값은 1 감소
+        acc.push(current - 1); // 삭제 인덱스 이후의 값은 1 감소
       }
       return acc;
     }, []);
@@ -259,7 +291,7 @@ export default function Page() {
         { key: 'bookmarked', title: 'Bookmarked' },
       ]);
       setActiveTab1(0); // 다이어그램 활성화
-      setOpenTabOrder([0,1]); // 히스토리 업데이트
+      setOpenTabOrder([0, 1]); // 히스토리 업데이트
     }
   }, [selectedPdfId]);
 
@@ -280,14 +312,18 @@ export default function Page() {
   }, [activeTab1]);
 
   return (
-    <div className="relative h-full">
-      <div className="flex h-full gap-2">
+    <div
+      ref={containerRef}
+      className="relative h-full flex"
+      style={{ userSelect: 'none' }}
+    >
+      <div style={{ width: `${leftWidth}%` }} className="h-full">
         <Tabs
           selectedIndex={activeTab1}
           onSelect={(tabIndex) => {
             setActiveTab1(tabIndex);
           }}
-          className="flex flex-col flex-1 h-full w-full min-w-[700px]"
+          className="flex flex-col flex-1 h-full w-full"
         >
           <TabList>
             {tabs1.map((tab, index) => (
@@ -295,10 +331,14 @@ export default function Page() {
                 {tab.title}
                 &nbsp;
                 {index > 1 && (
-                  <button onClick={(e) => {
-                    e.stopPropagation();
-                    removeTab1(tab.key, index)}
-                  }>x</button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeTab1(tab.key, index);
+                    }}
+                  >
+                    x
+                  </button>
                 )}
               </Tab>
             ))}
@@ -359,7 +399,9 @@ export default function Page() {
             </TabPanel>
           ))}
         </Tabs>
-
+      </div>
+      <div className="w-2 cursor-col-resize" onMouseDown={handleMouseDown} />
+      <div style={{ width: `${100 - leftWidth}%` }} className="h-full">
         <Tabs
           selectedIndex={activeTab2}
           onSelect={(tabIndex) => setActiveTab2(tabIndex)}
