@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import {
   pdfFileState,
@@ -21,7 +21,9 @@ export default function LeftAside() {
     [],
   );
   const [pdfData, setPdfData] = useState<any>(null);
-  const [isTocVisible, setIsTocVisible] = useState(true); // 목차 가시성 토글 상태
+  const [isTocVisible, setIsTocVisible] = useState(false); // 목차 가시성 토글 상태
+  const pdfListRef = useRef<HTMLUListElement>(null);
+
   ////////////////////////////////////////////////////////////////////////////////////////
   const getCookieValue = (name: string) => {
     const value = `; ${document.cookie}`;
@@ -124,8 +126,9 @@ export default function LeftAside() {
   };
 
   const toggleTocVisibility = (id: number) => {
+    console.log('test');
     if (selectedPdfId === id) {
-    setIsTocVisible(!isTocVisible); // 목차 가시성 토글
+      setIsTocVisible(!isTocVisible); // 목차 가시성 토글
     } else {
       setSelectedPdfId(id);
       setIsTocVisible(true); // 다른 파일을 선택하면 목차를 보이도록 설정
@@ -151,52 +154,59 @@ export default function LeftAside() {
         className="hidden"
         onChange={handleFileChange}
       />
-      <ul className="relative scrollable-list h-[calc(100%-48px)] overflow-auto scrollbar-hide">
+      <ul
+        className="relative scrollable-list h-[calc(100%-48px)] overflow-auto scrollbar-hide"
+        ref={pdfListRef}
+      >
         {pdfFiles.map((file) => (
           <li
             key={file.id}
             className="scrollable-list-item cursor-pointer"
-            onClick={() => toggleTocVisibility(file.id)}
+            onClick={(e) => {
+              // 현재 클릭된 요소가 바로 이 li인 경우에만 이벤트 처리
+              if (e.target === e.currentTarget) {
+                e.stopPropagation();
+                console.log('Clicked LI:', e.currentTarget);
+                toggleTocVisibility(file.id);
+              }
+            }}
           >
-            <div className="file-info">
-                <button
-                className="toc-toggle-button"
-                onClick={() => toggleTocVisibility(file.id)}
-                >
+            <div className="file-info pointer-events-none">
+              <button className="toc-toggle-button">
                 {selectedPdfId === file.id && isTocVisible ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="icon icon-tabler icon-tabler-chevron-down"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      strokeWidth="2"
-                      stroke="currentColor"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="icon icon-tabler icon-tabler-chevron-right"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      strokeWidth="2"
-                      stroke="currentColor"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                      <polyline points="9 6 15 12 9 18" />
-                    </svg>
-                  )}
-                </button>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="icon icon-tabler icon-tabler-chevron-down"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2"
+                    stroke="currentColor"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="icon icon-tabler icon-tabler-chevron-right"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2"
+                    stroke="currentColor"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <polyline points="9 6 15 12 9 18" />
+                  </svg>
+                )}
+              </button>
               <span className="ml-2">{file.filename}</span>
             </div>
             {selectedPdfId === file.id && isTocVisible && pdfData && (
