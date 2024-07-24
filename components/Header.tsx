@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import LogoutButton from './LogoutButton/LogoutButton';
 import { leftAsideVisibleState } from '@/recoil/atoms';
 import { useRecoilState } from 'recoil';
@@ -38,7 +38,7 @@ export default function Header() {
           </svg>
         </div>
         <button
-          className={`opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 ease-in-out ${leftAsideVisible ? 'opacity-0' : 'opacity-100'}`}
+          className={`opacity-0 pointer-events-none group-hover:pointer-events-auto transition-all duration-300 ease-in-out ${!leftAsideVisible && 'group-hover:opacity-100'}`}
           onClick={toggleAside}
         >
           <svg
