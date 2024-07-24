@@ -11,7 +11,6 @@ export default function Input({
   errors = [],
   ...rest
 }: InputProps & InputHTMLAttributes<HTMLInputElement>) {
-  console.log(name, 'name');
   return (
     <div className="flex flex-col gap-2">
       <input

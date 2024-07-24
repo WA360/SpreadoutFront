@@ -237,10 +237,6 @@ export default function Graph({
   const [hoveredNodeKeywords, setHoveredNodeKeywords] = useState<string>('');
 
   useEffect(() => {
-    console.log('hoveredNodeKeywords', hoveredNodeKeywords);
-  }, [hoveredNodeKeywords]);
-
-  useEffect(() => {
     const handleResize = () => {
       if (svgRef.current) {
         setDimensions({

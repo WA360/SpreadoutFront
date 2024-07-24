@@ -120,11 +120,6 @@ export default function LeftAside() {
     }
   };
 
-  const handlePdfClick = async (id: number) => {
-    setSelectedPdfId(id);
-    console.log('pdfId 변경됨 : ', id);
-  };
-
   const handleTocClick = (
     id: number,
     startPage: number,

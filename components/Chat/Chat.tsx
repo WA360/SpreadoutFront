@@ -72,8 +72,6 @@ export default function Chat({ sessionId }: ChatProps) {
       },
     );
 
-    console.log('response', response);
-
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -144,8 +142,6 @@ export default function Chat({ sessionId }: ChatProps) {
           }
           return newMessages;
         });
-
-        console.log('messages', messages);
       }
     } catch (error) {
       console.error('Error:', error);
