@@ -340,16 +340,6 @@ export default function Graph({
 
     const g = svg.append('g');
 
-    const zoom = d3
-      .zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.6, 6])
-      .on('zoom', (event) => {
-        g.attr('transform', event.transform);
-        updateTextVisibility(event.transform.k);
-      });
-
-    svg.call(zoom);
-
     // similarity가 -1인 경우는 기존 연결대로 연결
     const filteredLinks = [
       ...transformedData.links,
@@ -466,6 +456,18 @@ export default function Graph({
           levelVisibility((d as Node).level, zoomLevel),
         );
     };
+
+    const zoom = d3
+      .zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.6, 6]) // 줌의 최소 및 최대 비율 설정
+      .on('zoom', (event) => {
+        g.attr('transform', event.transform); // g 요소에 변환 적용
+        updateTextVisibility(event.transform.k); // 텍스트 가시성 업데이트
+      });
+
+    svg
+      .call(zoom)
+      .call(zoom.transform, d3.zoomIdentity.translate(0, 0).scale(3)); // 초기 확대/축소 비율 설정
 
     simulation.on('tick', () => {
       link
