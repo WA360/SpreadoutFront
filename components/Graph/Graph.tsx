@@ -239,7 +239,7 @@ export default function Graph({
   const [hoveredNodeName, setHoveredNodeName] = useState<string>('');
   const [hoveredNodeSummary, setHoveredNodeSummary] = useState<string>('');
   const [hoveredNodeKeywords, setHoveredNodeKeywords] = useState<string>('');
-  const [similarityThreshold, setSimilarityThreshold] = useState<number>(0.8); // similarity threshold 추가
+  const [similarityThreshold, setSimilarityThreshold] = useState<number>(1); // similarity threshold 추가
   const [structLink, setStructLink] = useState<boolean>(true);
 
   useEffect(() => {
