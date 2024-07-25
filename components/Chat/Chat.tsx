@@ -172,6 +172,12 @@ export default function Chat({ sessionId }: ChatProps) {
     });
   }, [isLoading, isEnd]);
 
+  useEffect(() => {
+    if (isEnd && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEnd]);
+
   // 메시지가 업데이트될 때마다 스크롤을 하단으로 이동시키는 useEffect
   useEffect(() => {
     if (messagesEndRef.current) {
