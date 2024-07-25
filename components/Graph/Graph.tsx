@@ -496,7 +496,7 @@ export default function Graph({
     };
   }, [transformedData, dimensions, searchResults]); // searchResults를 dependency로 추가
 
-  const handleSearch = () => {
+  const performSearch = () => {
     const trimmedQuery = searchQuery.trim();
 
     if (trimmedQuery === '') {
@@ -508,17 +508,24 @@ export default function Graph({
       // name 속성 검색
       const nameMatch = node.name
         .toLowerCase()
-        .includes(searchQuery.toLowerCase());
+        .includes(trimmedQuery.toLowerCase());
 
       // keywords 배열 검색
       const keywordsMatch = node.keywords.some((keyword) =>
-        keyword.toLowerCase().includes(searchQuery.toLowerCase()),
+        keyword.toLowerCase().includes(trimmedQuery.toLowerCase()),
       );
 
       return nameMatch || keywordsMatch;
     });
 
     setSearchResults(filteredNodes);
+  };
+
+  // Handler for key press
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      performSearch();
+    }
   };
 
   const getCookieValue = (name: string) => {
@@ -576,8 +583,9 @@ export default function Graph({
           className="search-box"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
-        <button className="search-button" onClick={handleSearch}>
+        <button className="search-button" onClick={performSearch}>
           검색
         </button>
         {iskey === 'bookmarked' && (
