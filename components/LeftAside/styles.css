@@ -16,7 +16,7 @@
 /* 파일 항목을 세로로 정렬 */
 .scrollable-list-item {
   display: block;
-  padding: 8px 16px;
+  padding: 8px 0px;
   white-space: nowrap; /* 텍스트가 줄 바꿈 없이 한 줄로 표시되도록 */
   overflow: hidden;
   text-overflow: ellipsis; /* 텍스트가 너무 길면 '...'으로 표시되도록 */
@@ -76,6 +76,11 @@
   transition: background-color 0.3s ease;
   padding-left: 10px;
   margin-left: -10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%; /* 또는 특정 픽셀 값 */
+  display: block;
 }
 
 .toc-item:hover {
