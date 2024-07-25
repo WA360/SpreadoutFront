@@ -195,7 +195,7 @@ export default function Chat({ sessionId }: ChatProps) {
 
   return (
     <div className="flex flex-col h-full border overflow-hidden">
-      <div className="flex flex-col flex-1 p-[8px] overflow-auto">
+      <div className="flex flex-col flex-1 p-[8px] overflow-auto select-text">
         {messages.map((message, index) => (
           <div
             key={index}
