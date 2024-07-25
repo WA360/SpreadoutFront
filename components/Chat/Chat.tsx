@@ -20,6 +20,10 @@ interface ChatProps {
   sessionId: number;
 }
 
+const random = (min: number, max: number): number => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
 export default function Chat({ sessionId }: ChatProps) {
   const [messages, setMessages] = useRecoilState(messageState);
   const [inputMessage, setInputMessage] = useState('');
@@ -29,6 +33,11 @@ export default function Chat({ sessionId }: ChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const selectedPdfId = useRecoilValue(selectedPdfIdState);
   const pdfData = useRecoilValue<Data | null>(pdfDataState);
+  const [pdfNum, setPdfNum] = useState(random(1, 1000000));
+
+  useEffect(() => {
+    setPdfNum(random(1, 1000000));
+  }, [selectedPdfId]);
 
   // React Query를 사용하여 메시지 가져오기
   const { data: server_messages = [] } = useQuery<Message[]>({
@@ -46,12 +55,6 @@ export default function Chat({ sessionId }: ChatProps) {
   const sendMessage = async (
     question: string,
   ): Promise<ReadableStream<Uint8Array>> => {
-    // 랜덤으로 1부터 1000000까지 생성
-    const random = (min: number, max: number): number => {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-
-    const randomNumber = random(1, 1000000);
     if (!isEnd) return new ReadableStream<Uint8Array>();
 
     const response = await fetch(
@@ -67,7 +70,7 @@ export default function Chat({ sessionId }: ChatProps) {
           ...(pdfData?.nodes[0]?.filename && {
             fileName: pdfData?.nodes[0]?.filename,
           }),
-          chatNum: randomNumber,
+          chatNum: pdfNum,
         }),
       },
     );
