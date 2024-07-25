@@ -441,14 +441,15 @@ export default function Graph({
       .text((d) => d.name);
 
     const updateTextVisibility = (zoomLevel: number) => {
+      console.log('zoomLevel', zoomLevel);
       const levelVisibility = (level: string, zoomLevel: number) => {
         switch (level) {
           case '1':
             return zoomLevel >= 0 ? 'block' : 'none';
           case '2':
-            return zoomLevel >= 2 ? 'block' : 'none';
-          case '3':
             return zoomLevel >= 4 ? 'block' : 'none';
+          case '3':
+            return zoomLevel >= 5 ? 'block' : 'none';
           case '4':
             return zoomLevel >= 6 ? 'block' : 'none';
           default:
@@ -470,6 +471,7 @@ export default function Graph({
       .zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.6, 6]) // 줌의 최소 및 최대 비율 설정
       .on('zoom', (event) => {
+        console.log('event.transform.k', event.transform.k);
         g.attr('transform', event.transform); // g 요소에 변환 적용
         updateTextVisibility(event.transform.k); // 텍스트 가시성 업데이트
       });
