@@ -73,7 +73,6 @@ export interface GraphProps {
 
 // 데이터 변환 함수
 const transformData = (iskey: string, data: any): Data => {
-  console.log('data', data);
   // 노드 변환
   let nodeIds: string[] = [];
   let nodes: Node[] = data.nodes.map((node: any) => ({
@@ -111,11 +110,7 @@ const transformData = (iskey: string, data: any): Data => {
         (node) => node.id === String(link.target),
       );
       // similarity가 0.8 이상과 -1만 연결
-      return (
-        sourceExists &&
-        targetExists &&
-        (link.similarity >= 0.8 || link.similarity === -1)
-      );
+      return sourceExists && targetExists;
 
       // return sourceExists && targetExists && link.similarity >= 0.8;
       // return sourceExists && targetExists;
@@ -244,6 +239,7 @@ export default function Graph({
   const [hoveredNodeName, setHoveredNodeName] = useState<string>('');
   const [hoveredNodeSummary, setHoveredNodeSummary] = useState<string>('');
   const [hoveredNodeKeywords, setHoveredNodeKeywords] = useState<string>('');
+  const [similarityThreshold, setSimilarityThreshold] = useState<number>(0.8); // similarity threshold 추가
 
   useEffect(() => {
     const handleResize = () => {
@@ -368,7 +364,11 @@ export default function Graph({
     const normalLinks = [
       ...transformedData.links,
       ...transformedData.session_links,
-    ].filter((link) => (link as Link).similarity !== -1);
+    ].filter(
+      (link) =>
+        (link as Link).similarity !== -1 &&
+        (link as Link).similarity >= similarityThreshold,
+    );
 
     const normalLinksGroup = g
       .append('g')
@@ -503,7 +503,7 @@ export default function Graph({
     return () => {
       simulation.stop();
     };
-  }, [transformedData, dimensions, searchResults]); // searchResults를 dependency로 추가
+  }, [transformedData, dimensions, searchResults, similarityThreshold]); // searchResults를 dependency로 추가
 
   const performSearch = () => {
     const trimmedQuery = searchQuery.trim();
@@ -584,6 +584,10 @@ export default function Graph({
     }
   };
 
+  const handleSimilarityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSimilarityThreshold(parseFloat(e.target.value));
+  };
+
   return (
     <div ref={containerRef} className="relative h-full w-full">
       <div className="flex">
@@ -605,6 +609,21 @@ export default function Graph({
             커스텀링크
           </button>
         )}
+      </div>
+      <div className="flex items-center">
+        <label htmlFor="similarity-slider" className="mr-2">
+          Similarity Threshold:
+        </label>
+        <input
+          id="similarity-slider"
+          type="range"
+          min="0.7"
+          max="0.85"
+          step="0.01"
+          value={similarityThreshold}
+          onChange={handleSimilarityChange}
+        />
+        <span className="ml-2">{similarityThreshold.toFixed(2)}</span>
       </div>
       <svg ref={svgRef}></svg>
       {isModalOpen && (
