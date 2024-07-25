@@ -240,6 +240,31 @@ export default function Graph({
   const [hoveredNodeSummary, setHoveredNodeSummary] = useState<string>('');
   const [hoveredNodeKeywords, setHoveredNodeKeywords] = useState<string>('');
   const [similarityThreshold, setSimilarityThreshold] = useState<number>(0.8); // similarity threshold 추가
+  const [structLink, setStructLink] = useState<boolean>(true);
+
+  useEffect(() => {
+    setStructLink(true);
+  }, [pdfData]);
+
+  // 버튼 클릭 핸들러
+  const structLinkToggle = () => {
+    setStructLink(!structLink);
+    console.log('pdfData', pdfData);
+    // transformedData를 변경 가능한 새로운 객체로 복제
+    const mutableTransformedData = JSON.parse(JSON.stringify(pdfData));
+
+    const normalLinks = [
+      ...transformedData.links,
+      ...transformedData.session_links,
+    ].filter((link) => (link as Link).similarity !== -1);
+
+    setTransformedData((prevData) => {
+      return {
+        ...prevData,
+        links: structLink ? normalLinks : mutableTransformedData.links, // 또는 pdfData.links 사용
+      };
+    });
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -353,8 +378,8 @@ export default function Graph({
 
     const link = g
       .append('g')
-      .attr('stroke', '#999')
-      .attr('stroke-opacity', 0.3)
+      .attr('stroke', '#000')
+      .attr('stroke-opacity', 1)
       .selectAll('line')
       .data(filteredLinks) // filtered links
       .join('line')
@@ -372,12 +397,12 @@ export default function Graph({
 
     const normalLinksGroup = g
       .append('g')
-      .attr('stroke', '#f0f')
+      .attr('stroke', '#0f0') // Change stroke color to green
       .attr('stroke-opacity', 1)
       .selectAll('line')
       .data(normalLinks) // normal links
       .join('line')
-      .attr('stroke-width', 1);
+      .attr('stroke-width', 1.5);
 
     const node = g
       .append('g')
@@ -441,7 +466,6 @@ export default function Graph({
       .text((d) => d.name);
 
     const updateTextVisibility = (zoomLevel: number) => {
-      console.log('zoomLevel', zoomLevel);
       const levelVisibility = (level: string, zoomLevel: number) => {
         switch (level) {
           case '1':
@@ -471,7 +495,6 @@ export default function Graph({
       .zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.6, 6]) // 줌의 최소 및 최대 비율 설정
       .on('zoom', (event) => {
-        console.log('event.transform.k', event.transform.k);
         g.attr('transform', event.transform); // g 요소에 변환 적용
         updateTextVisibility(event.transform.k); // 텍스트 가시성 업데이트
       });
@@ -599,6 +622,7 @@ export default function Graph({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleKeyDown}
+          placeholder='검색어를 입력하세요. (예: "10장")'
         />
         <button className="search-button" onClick={performSearch}>
           검색
@@ -611,21 +635,6 @@ export default function Graph({
             커스텀링크
           </button>
         )}
-      </div>
-      <div className="flex items-center">
-        <label htmlFor="similarity-slider" className="mr-2">
-          Similarity Threshold:
-        </label>
-        <input
-          id="similarity-slider"
-          type="range"
-          min="0.7"
-          max="0.85"
-          step="0.01"
-          value={similarityThreshold}
-          onChange={handleSimilarityChange}
-        />
-        <span className="ml-2">{similarityThreshold.toFixed(2)}</span>
       </div>
       <svg ref={svgRef}></svg>
       {isModalOpen && (
@@ -675,6 +684,40 @@ export default function Graph({
           </div>
         </div>
       )}
+      <div className="absolute w-[160px] bottom-0 right-0 flex">
+        <div className="flex flex-col items-end">
+          <button
+            className={`mb-4 ${structLink ? 'opacity-100' : 'opacity-50'}`}
+            onClick={structLinkToggle}
+          >
+            <svg viewBox="0 0 100 100" width="45" height="45">
+              <circle cx="32" cy="20" r="6" fill="#2563EB" />
+              <line x1="32" y1="20" x2="58" y2="50" stroke="#2563EB" />
+              <circle cx="80" cy="20" r="14" fill="#2563EB" />
+              <line x1="80" y1="20" x2="58" y2="50" stroke="#2563EB" />
+              <circle cx="58" cy="50" r="12" fill="#2563EB" />
+              <circle cx="22" cy="65" r="19" fill="#2563EB" />
+              <line x1="22" y1="65" x2="58" y2="50" stroke="#2563EB" />
+              <circle cx="48" cy="80" r="5" fill="#2563EB" />
+              <circle cx="84" cy="80" r="13" fill="#2563EB" />
+              <line x1="84" y1="80" x2="58" y2="50" stroke="#2563EB" />
+            </svg>
+          </button>
+          <label htmlFor="similarity-slider">
+            유사도 연결강도: <span>{similarityThreshold.toFixed(2)}</span>
+          </label>
+          <input
+            id="similarity-slider"
+            className="w-full"
+            type="range"
+            min="0.5"
+            max="1"
+            step="0.01"
+            value={similarityThreshold}
+            onChange={handleSimilarityChange}
+          />
+        </div>
+      </div>
       {hoveredNodeSummary && hoveredNodeName && (
         <div className="node-title-box flex flex-col">
           <strong className="mt-auto">{hoveredNodeName}</strong>
