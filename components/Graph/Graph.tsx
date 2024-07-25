@@ -73,6 +73,7 @@ export interface GraphProps {
 
 // 데이터 변환 함수
 const transformData = (iskey: string, data: any): Data => {
+  console.log('data', data);
   // 노드 변환
   let nodeIds: string[] = [];
   let nodes: Node[] = data.nodes.map((node: any) => ({
@@ -109,7 +110,15 @@ const transformData = (iskey: string, data: any): Data => {
       const targetExists = nodes.find(
         (node) => node.id === String(link.target),
       );
-      return sourceExists && targetExists;
+      // similarity가 0.8 이상과 -1만 연결
+      return (
+        sourceExists &&
+        targetExists &&
+        (link.similarity >= 0.8 || link.similarity === -1)
+      );
+
+      // return sourceExists && targetExists && link.similarity >= 0.8;
+      // return sourceExists && targetExists;
     })
     .map((link: any) => ({
       ...link,
@@ -349,7 +358,7 @@ export default function Graph({
     const link = g
       .append('g')
       .attr('stroke', '#999')
-      .attr('stroke-opacity', 0.6)
+      .attr('stroke-opacity', 0.3)
       .selectAll('line')
       .data(filteredLinks) // filtered links
       .join('line')
@@ -363,12 +372,12 @@ export default function Graph({
 
     const normalLinksGroup = g
       .append('g')
-      .attr('stroke', '#cecece')
-      .attr('stroke-opacity', 0.6)
+      .attr('stroke', '#f0f')
+      .attr('stroke-opacity', 1)
       .selectAll('line')
       .data(normalLinks) // normal links
       .join('line')
-      .attr('stroke-width', 0.5);
+      .attr('stroke-width', 1);
 
     const node = g
       .append('g')
