@@ -15,6 +15,7 @@ import {
   messageState,
 } from '@/recoil/atoms';
 import { Data } from '@/components/Graph/Graph';
+import { defaultShortcutConfig, useDirectInsertShortcut } from '@/lib/shortcut';
 
 interface ChatProps {
   sessionId: number;
@@ -34,6 +35,7 @@ export default function Chat({ sessionId }: ChatProps) {
   const selectedPdfId = useRecoilValue(selectedPdfIdState);
   const pdfData = useRecoilValue<Data | null>(pdfDataState);
   const [pdfNum, setPdfNum] = useState(random(1, 1000000));
+  const { getShortcuts } = useDirectInsertShortcut(defaultShortcutConfig);
 
   useEffect(() => {
     setPdfNum(random(1, 1000000));
@@ -161,9 +163,13 @@ export default function Chat({ sessionId }: ChatProps) {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.altKey && defaultShortcutConfig[e.key]) {
       e.preventDefault();
-      handleSendMessage(e as any); // 타입 캐스팅
+      const text = defaultShortcutConfig[e.key];
+      setInputMessage((prev) => prev + text);
+    } else if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage(e as any);
     }
   };
 
@@ -182,11 +188,11 @@ export default function Chat({ sessionId }: ChatProps) {
   }, [isEnd]);
 
   // 메시지가 업데이트될 때마다 스크롤을 하단으로 이동시키는 useEffect
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'auto' });
-    }
-  }, [messages]);
+  // useEffect(() => {
+  //   if (messagesEndRef.current) {
+  //     messagesEndRef.current.scrollIntoView({ behavior: 'auto' });
+  //   }
+  // }, [messages]);
 
   const [testLoading, setTestLoading] = useState(true);
 
