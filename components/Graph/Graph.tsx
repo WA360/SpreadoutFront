@@ -361,7 +361,7 @@ export default function Graph({
       .force('y', d3.forceY<Node | SessionNode>());
 
     const svg = d3
-      .select(svgRef.current)
+      .select(svgRef.current as unknown as d3.BaseType)
       .attr('width', width)
       .attr('height', height)
       .attr('viewBox', [-width / 2, -height / 2, width, height]);
@@ -492,7 +492,7 @@ export default function Graph({
     };
 
     const zoom = d3
-      .zoom<SVGSVGElement, unknown>()
+      .zoom<any, any>()
       .scaleExtent([0.6, 6]) // 줌의 최소 및 최대 비율 설정
       .on('zoom', (event) => {
         g.attr('transform', event.transform); // g 요소에 변환 적용
@@ -500,7 +500,7 @@ export default function Graph({
       });
 
     svg
-      .call(zoom)
+      .call(zoom as any)
       .call(zoom.transform, d3.zoomIdentity.translate(0, 0).scale(3)); // 초기 확대/축소 비율 설정
 
     simulation.on('tick', () => {
