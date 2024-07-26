@@ -15,7 +15,8 @@
       {
         "tabWidth": 2,
         "useTabs": false,
-        "endOfLine": "auto"
+        "endOfLine": "auto",
+        "printWidth": 100
       }
     ],
     "@typescript-eslint/no-unused-vars": "off", // 사용되지 않는 변수 규칙 비활성화
