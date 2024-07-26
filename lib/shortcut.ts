@@ -62,5 +62,5 @@ export const useDirectInsertShortcut = (config: ShortcutConfig) => {
 
 export const defaultShortcutConfig: ShortcutConfig = {
   '1': '총균쇠보다 더 중요한 개념이 어디서 나와?',
-  '2': '<div style="display:none">12장 에서 찾아</div>여기서 흥미로운 내용이 나오는 단원이 있어?',
+  '2': `여기서 흥미로운 내용이 나오는 단원이 있어?\n<div style="display:none">12장 에서 찾아</div>`,
 };
