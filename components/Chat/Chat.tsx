@@ -222,7 +222,9 @@ export default function Chat({ sessionId }: ChatProps) {
                 <Markdown
                   rehypePlugins={[rehypeRaw]}
                   remarkPlugins={[remarkGfm]}
-                  className={'text-2xl [&>p:last-child]:mb-0'}
+                  className={
+                    'text-2xl [&>p:last-child]:mb-0 [&>p:first-child]:mb-0'
+                  }
                 >
                   {DOMPurify.sanitize(message.text)}
                 </Markdown>
@@ -260,7 +262,7 @@ export default function Chat({ sessionId }: ChatProps) {
           onKeyDown={handleKeyDown}
           placeholder="메시지를 입력하세요..."
           disabled={!isEnd}
-          className="flex-grow p-2 border rounded-l resize-none"
+          className="flex-grow p-2 border rounded-l resize-none leading-loose"
           rows={1}
         />
         <button
