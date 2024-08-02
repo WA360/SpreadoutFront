@@ -18,15 +18,11 @@ export default function LeftAside() {
   const [selectedPdfId, setSelectedPdfId] = useRecoilState(selectedPdfIdState);
   const [message, setMessage] = useRecoilState(messageState);
   const [, setSelectedToc] = useRecoilState(selectedTocState);
-  const [pdfFiles, setPdfFiles] = useState<{ id: number; filename: string }[]>(
-    [],
-  );
+  const [pdfFiles, setPdfFiles] = useState<{ id: number; filename: string }[]>([]);
   const [pdfData, setPdfData] = useState<any>(null);
   const [isTocVisible, setIsTocVisible] = useState(false); // 목차 가시성 토글 상태
   const pdfListRef = useRef<HTMLUListElement>(null);
-  const [leftAsideVisible, setLeftAsideVisible] = useRecoilState(
-    leftAsideVisibleState,
-  );
+  const [leftAsideVisible, setLeftAsideVisible] = useRecoilState(leftAsideVisibleState);
 
   ////////////////////////////////////////////////////////////////////////////////////////
   const toggleAside = () => {
@@ -42,7 +38,8 @@ export default function LeftAside() {
 
   const getUserUUID = async () => {
     try {
-      const token = getCookieValue('token');
+      const token =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzIyNTc1NTkwLCJleHAiOjE3MjMxMTU1OTB9._kMJqWAJvOvjLoTtIT9WqV8GL4clW_1-XFk4_IzANR0';
       const response = await axios.get('http://3.38.176.179:4000/users/uuid', {
         headers: {
           token: `${token}`,
@@ -120,11 +117,7 @@ export default function LeftAside() {
     }
   };
 
-  const handleTocClick = (
-    id: number,
-    startPage: number,
-    bookmarked: number,
-  ) => {
+  const handleTocClick = (id: number, startPage: number, bookmarked: number) => {
     setSelectedToc({ id, startPage, bookmarked }); // selectedToc 상태 업데이트
   };
 
@@ -148,12 +141,13 @@ export default function LeftAside() {
       <aside
         className={`h-full relative flex flex-col w-80 shrink-0 border-r p-2 transition-all duration-300 ease-in-out ${leftAsideVisible ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <label
+        {/* 리모델링 예정 */}
+        {/* <label
           htmlFor="file_upload"
           className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md cursor-pointer hover:bg-blue-700 transition-colors duration-300"
         >
           파일 업로드
-        </label>
+        </label> */}
         <input
           id="file_upload"
           type="file"
@@ -228,11 +222,7 @@ export default function LeftAside() {
                         key={node.id}
                         className="toc-item"
                         onClick={() => {
-                          handleTocClick(
-                            node.id,
-                            node.start_page,
-                            node.bookmarked,
-                          );
+                          handleTocClick(node.id, node.start_page, node.bookmarked);
                         }}
                       >
                         {node.name}

@@ -2,12 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import * as d3 from 'd3';
 import { OriginGraphData } from '@/app/(main)/page';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import {
-  pdfFileState,
-  selectedPdfIdState,
-  selectedTocState,
-  pdfDataState,
-} from '@/recoil/atoms';
+import { pdfFileState, selectedPdfIdState, selectedTocState, pdfDataState } from '@/recoil/atoms';
 import './style.css';
 
 // Node 인터페이스 정의
@@ -83,13 +78,11 @@ const transformData = (iskey: string, data: any): Data => {
   }));
 
   // 세션노드 변환
-  let session_nodes: SessionNode[] = data.session_nodes.map(
-    (session_node: any) => ({
-      ...session_node,
-      id: String(session_node.id), // id를 string으로 변환
-      level: String(session_node.level),
-    }),
-  );
+  let session_nodes: SessionNode[] = data.session_nodes.map((session_node: any) => ({
+    ...session_node,
+    id: String(session_node.id), // id를 string으로 변환
+    level: String(session_node.level),
+  }));
 
   if (iskey === 'bookmarked') {
     nodes = nodes.filter((node) => {
@@ -103,12 +96,8 @@ const transformData = (iskey: string, data: any): Data => {
   // 챕터 링크 변환
   const links: Link[] = data.links
     .filter((link: any) => {
-      const sourceExists = nodes.find(
-        (node) => node.id === String(link.source),
-      );
-      const targetExists = nodes.find(
-        (node) => node.id === String(link.target),
-      );
+      const sourceExists = nodes.find((node) => node.id === String(link.source));
+      const targetExists = nodes.find((node) => node.id === String(link.target));
       // similarity가 0.8 이상과 -1만 연결
       return sourceExists && targetExists;
 
@@ -159,11 +148,7 @@ const transformData = (iskey: string, data: any): Data => {
 };
 
 const dragstarted = (
-  event: d3.D3DragEvent<
-    SVGCircleElement,
-    Node | SessionNode,
-    Node | SessionNode
-  >,
+  event: d3.D3DragEvent<SVGCircleElement, Node | SessionNode, Node | SessionNode>,
   simulation: d3.Simulation<Node | SessionNode, Link | SessionLink>,
 ) => {
   if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -172,22 +157,14 @@ const dragstarted = (
 };
 
 const dragged = (
-  event: d3.D3DragEvent<
-    SVGCircleElement,
-    Node | SessionNode,
-    Node | SessionNode
-  >,
+  event: d3.D3DragEvent<SVGCircleElement, Node | SessionNode, Node | SessionNode>,
 ) => {
   event.subject.fx = event.x;
   event.subject.fy = event.y;
 };
 
 const dragended = (
-  event: d3.D3DragEvent<
-    SVGCircleElement,
-    Node | SessionNode,
-    Node | SessionNode
-  >,
+  event: d3.D3DragEvent<SVGCircleElement, Node | SessionNode, Node | SessionNode>,
   simulation: d3.Simulation<Node | SessionNode, Link | SessionLink>,
 ) => {
   if (!event.active) simulation.alphaTarget(0);
@@ -253,10 +230,9 @@ export default function Graph({
     // transformedData를 변경 가능한 새로운 객체로 복제
     const mutableTransformedData = JSON.parse(JSON.stringify(pdfData));
 
-    const normalLinks = [
-      ...transformedData.links,
-      ...transformedData.session_links,
-    ].filter((link) => (link as Link).similarity !== -1);
+    const normalLinks = [...transformedData.links, ...transformedData.session_links].filter(
+      (link) => (link as Link).similarity !== -1,
+    );
 
     setTransformedData((prevData) => {
       return {
@@ -371,10 +347,9 @@ export default function Graph({
     const g = svg.append('g');
 
     // similarity가 -1인 경우는 기존 연결대로 연결
-    const filteredLinks = [
-      ...transformedData.links,
-      ...transformedData.session_links,
-    ].filter((link) => (link as Link).similarity === -1);
+    const filteredLinks = [...transformedData.links, ...transformedData.session_links].filter(
+      (link) => (link as Link).similarity === -1,
+    );
 
     const link = g
       .append('g')
@@ -386,13 +361,9 @@ export default function Graph({
       .attr('stroke-width', 2);
 
     // similarity가 -1이 아닌 링크는 약한 연결로 연결
-    const normalLinks = [
-      ...transformedData.links,
-      ...transformedData.session_links,
-    ].filter(
+    const normalLinks = [...transformedData.links, ...transformedData.session_links].filter(
       (link) =>
-        (link as Link).similarity !== -1 &&
-        (link as Link).similarity >= similarityThreshold,
+        (link as Link).similarity !== -1 && (link as Link).similarity >= similarityThreshold,
     );
 
     const normalLinksGroup = g
@@ -482,13 +453,8 @@ export default function Graph({
       };
 
       text
-        .style(
-          'font-size',
-          (d: Node | SessionNode) => `${Math.max(16 / zoomLevel, 2)}px`,
-        )
-        .style('display', (d: Node | SessionNode) =>
-          levelVisibility((d as Node).level, zoomLevel),
-        );
+        .style('font-size', (d: Node | SessionNode) => `${Math.max(16 / zoomLevel, 2)}px`)
+        .style('display', (d: Node | SessionNode) => levelVisibility((d as Node).level, zoomLevel));
     };
 
     const zoom = d3
@@ -499,9 +465,7 @@ export default function Graph({
         updateTextVisibility(event.transform.k); // 텍스트 가시성 업데이트
       });
 
-    svg
-      .call(zoom as any)
-      .call(zoom.transform, d3.zoomIdentity.translate(0, 0).scale(3)); // 초기 확대/축소 비율 설정
+    svg.call(zoom as any).call(zoom.transform, d3.zoomIdentity.translate(0, 0).scale(3)); // 초기 확대/축소 비율 설정
 
     simulation.on('tick', () => {
       link
@@ -540,9 +504,7 @@ export default function Graph({
     // 검색어를 포함하는 노드 필터링
     const filteredNodes = transformedData.nodes.filter((node) => {
       // name 속성 검색
-      const nameMatch = node.name
-        .toLowerCase()
-        .includes(trimmedQuery.toLowerCase());
+      const nameMatch = node.name.toLowerCase().includes(trimmedQuery.toLowerCase());
 
       // keywords 배열 검색
       const keywordsMatch = node.keywords.some((keyword) =>
@@ -570,23 +532,21 @@ export default function Graph({
   };
 
   const customLink = async () => {
-    const token = getCookieValue('token');
+    const token =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzIyNTc1NTkwLCJleHAiOjE3MjMxMTU1OTB9._kMJqWAJvOvjLoTtIT9WqV8GL4clW_1-XFk4_IzANR0';
     try {
-      const response = await fetch(
-        'http://3.38.176.179:4000/pdf/bookmark/connection',
-        {
-          method: 'POST',
-          headers: {
-            token: `${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            source: Number(sourceNode),
-            target: Number(targetNode),
-            pdfId: Number(selectedPdfId),
-          }),
+      const response = await fetch('http://3.38.176.179:4000/pdf/bookmark/connection', {
+        method: 'POST',
+        headers: {
+          token: `${token}`,
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify({
+          source: Number(sourceNode),
+          target: Number(targetNode),
+          pdfId: Number(selectedPdfId),
+        }),
+      });
 
       if (response.ok) {
         const newLink: any = {

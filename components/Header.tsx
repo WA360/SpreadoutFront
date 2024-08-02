@@ -41,7 +41,7 @@ export default function Header() {
           </svg>
         </button>
       </div>
-      <LogoutButton />
+      {/* <LogoutButton /> */}
     </div>
   );
 }

@@ -10,7 +10,8 @@ const publicOnlyUrls: Routes = {
 };
 
 export async function middleware(request: NextRequest) {
-  const token = request.cookies.get('token')?.value;
+  const token =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzIyNTc1NTkwLCJleHAiOjE3MjMxMTU1OTB9._kMJqWAJvOvjLoTtIT9WqV8GL4clW_1-XFk4_IzANR0';
   const isPublicOnly = publicOnlyUrls[request.nextUrl.pathname];
 
   if (!token) {

@@ -11,16 +11,14 @@ interface Message {
 export const getMessages = async (sessionId: number): Promise<Message[]> => {
   if (!sessionId) return [];
 
-  const token = cookies().get('token');
-  const response = await axios.get(
-    'http://3.38.176.179:4000/bot/session/detail',
-    {
-      params: { chapterId: sessionId },
-      headers: {
-        token: `${token?.value}`,
-      },
+  const token =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzIyNTc1NTkwLCJleHAiOjE3MjMxMTU1OTB9._kMJqWAJvOvjLoTtIT9WqV8GL4clW_1-XFk4_IzANR0';
+  const response = await axios.get('http://3.38.176.179:4000/bot/session/detail', {
+    params: { chapterId: sessionId },
+    headers: {
+      token: `${token}`,
     },
-  );
+  });
 
   const pattern = /<<(\w+)>>(.*?)(?=<<|$)/g;
   let match;
@@ -36,10 +34,7 @@ export const getMessages = async (sessionId: number): Promise<Message[]> => {
   return data;
 };
 
-export const saveMessage = async (
-  sessionId: number,
-  messages: Message[],
-): Promise<void> => {
+export const saveMessage = async (sessionId: number, messages: Message[]): Promise<void> => {
   if (!sessionId) return;
   let result = messages
     .reverse()
@@ -53,7 +48,8 @@ export const saveMessage = async (
     .join('');
 
   try {
-    const token = cookies().get('token');
+    const token =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzIyNTc1NTkwLCJleHAiOjE3MjMxMTU1OTB9._kMJqWAJvOvjLoTtIT9WqV8GL4clW_1-XFk4_IzANR0';
     const response = await axios.put(
       `http://3.38.176.179:4000/bot/session/detail`,
       {
@@ -63,7 +59,7 @@ export const saveMessage = async (
       {
         headers: {
           'Content-Type': 'application/json',
-          token: `${token?.value}`,
+          token: `${token}`,
         },
       },
     );

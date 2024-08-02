@@ -4,11 +4,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import PDFReader from '@/components/PDFReader';
 import Graph from '@/components/Graph/Graph';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import {
-  selectedPdfIdState,
-  pdfFileState,
-  selectedTocState,
-} from '@/recoil/atoms';
+import { selectedPdfIdState, pdfFileState, selectedTocState } from '@/recoil/atoms';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import axios from 'axios';
@@ -108,8 +104,7 @@ export default function Page() {
     (e: MouseEvent) => {
       if (!isDragging || !containerRef.current) return;
       const containerRect = containerRef.current.getBoundingClientRect();
-      const newLeftWidth =
-        ((e.clientX - containerRect.left) / containerRect.width) * 100;
+      const newLeftWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
       setLeftWidth(Math.max(30, Math.min(70, newLeftWidth)));
     },
     [isDragging],
@@ -205,10 +200,7 @@ export default function Page() {
   const handleNodeClick = async (pageNumber: number) => {
     setTabs1((prevTabs) => {
       const newTabKey = `tab-${prevTabs.length}`; // prevTabs.length를 사용하여 새로운 탭 키 생성
-      const newTabs = [
-        ...prevTabs,
-        { key: newTabKey, title: `Page ${pageNumber}` },
-      ]; // 이전 탭 배열에 새 탭 추가
+      const newTabs = [...prevTabs, { key: newTabKey, title: `Page ${pageNumber}` }]; // 이전 탭 배열에 새 탭 추가
       setActiveTab1(newTabs.length - 1); // 새로 추가된 탭을 활성화
       setTabPageNumbers((prevTabPageNumbers) => ({
         ...prevTabPageNumbers,
@@ -221,10 +213,7 @@ export default function Page() {
   const handleSessionNodeClick = async (sessionId: number) => {
     setTabs2((prevTabs) => {
       const newTabKey = `session-tab-${prevTabs.length}`; // prevTabs.length를 사용하여 새로운 탭 키 생성
-      const newTabs = [
-        ...prevTabs,
-        { key: newTabKey, title: `Session ${sessionId}` },
-      ]; // 이전 탭 배열에 새 탭 추가
+      const newTabs = [...prevTabs, { key: newTabKey, title: `Session ${sessionId}` }]; // 이전 탭 배열에 새 탭 추가
       setActiveTab2(newTabs.length - 1); // 새로 추가된 탭을 활성화
       setTabSessionNumbers((prevTabSessionNumbers) => ({
         ...prevTabSessionNumbers,
@@ -253,7 +242,7 @@ export default function Page() {
         },
         {
           headers: {
-            token: `${token}`,
+            token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzIyNTc1NTkwLCJleHAiOjE3MjMxMTU1OTB9._kMJqWAJvOvjLoTtIT9WqV8GL4clW_1-XFk4_IzANR0`,
           },
         },
       );
@@ -285,20 +274,13 @@ export default function Page() {
 
   useEffect(() => {
     setOpenTabOrder((prevOrder) => {
-      const newOrder = [
-        activeTab1,
-        ...prevOrder.filter((index) => index !== activeTab1),
-      ];
+      const newOrder = [activeTab1, ...prevOrder.filter((index) => index !== activeTab1)];
       return newOrder;
     });
   }, [activeTab1]);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative h-full flex"
-      style={{ userSelect: 'none' }}
-    >
+    <div ref={containerRef} className="relative h-full flex" style={{ userSelect: 'none' }}>
       <div style={{ width: `${leftWidth}%` }} className="h-full">
         <Tabs
           selectedIndex={activeTab1}
@@ -346,9 +328,7 @@ export default function Page() {
                   <div className="relative tab-panel h-full w-full">
                     <button
                       className="absolute top-4 left-4 z-10 bg-white p-2 rounded shadow"
-                      onClick={() =>
-                        handleBookmarkedButtonClick(selectedToc!.id)
-                      }
+                      onClick={() => handleBookmarkedButtonClick(selectedToc!.id)}
                     >
                       {isBookmark ? '북마크 됨' : '북마크 안됨'}
                     </button>
@@ -372,9 +352,7 @@ export default function Page() {
               <Tab key={tab.key}>
                 {tab.title}
                 &nbsp;
-                {index !== 0 && (
-                  <button onClick={() => removeTab2(tab.key)}>x</button>
-                )}
+                {index !== 0 && <button onClick={() => removeTab2(tab.key)}>x</button>}
               </Tab>
             ))}
           </TabList>
@@ -387,8 +365,7 @@ export default function Page() {
                   <h3 className="absolute top-1 right-4 z-10">
                     Tab Number: {tabs2.findIndex((t) => t.key === tab.key)}
                   </h3>
-                  <Chat sessionId={tabSessionNumbers[tab.key]} />{' '}
-                  {/* 세션 ID 전달 */}
+                  <Chat sessionId={tabSessionNumbers[tab.key]} /> {/* 세션 ID 전달 */}
                 </div>
               )}
             </TabPanel>
