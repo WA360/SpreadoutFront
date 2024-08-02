@@ -4,4 +4,4 @@ export const PASSWORD_MIN_LENGTH = 1;
 // );
 export const PASSWORD_REGEX = new RegExp(/.*/);
 export const PASSWORD_REGEX_ERROR =
-  'A password must have lowercase, UPPERCASE, a number and special characters.';
+  '비밀번호는 소문자, 대문자, 숫자 및 특수 문자를 포함해야 합니다.';

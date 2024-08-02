@@ -10,19 +10,22 @@ const publicOnlyUrls: Routes = {
 };
 
 export async function middleware(request: NextRequest) {
-  const cookies = request.cookies.get('token')?.value;
-  const exists = publicOnlyUrls[request.nextUrl.pathname];
+  const token = request.cookies.get('token')?.value;
+  const isPublicOnly = publicOnlyUrls[request.nextUrl.pathname];
 
-  if (!cookies) {
-    if (!exists) {
+  if (!token) {
+    // 사용자가 인증되지 않았으며 보호된 페이지에 접근하려는 경우
+    if (!isPublicOnly) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
   } else {
-    if (exists) {
+    // 사용자가 인증되었으며 로그인 페이지 또는 회원가입 페이지에 접근하려는 경우
+    if (isPublicOnly) {
       return NextResponse.redirect(new URL('/', request.url));
     }
   }
 
+  // 그 외의 경우 요청을 계속 진행
   return NextResponse.next();
 }
 

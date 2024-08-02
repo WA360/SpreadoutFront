@@ -9,7 +9,8 @@ import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
 import Link from 'next/link';
 
 export default function Login() {
-  const [, dispatch] = useFormState(logIn, null);
+  const [state, dispatch] = useFormState(logIn, null);
+  const { fieldErrors, formErrors } = state || {};
 
   return (
     <div className="flex flex-col gap-10 py-8 px-6">
@@ -18,13 +19,14 @@ export default function Login() {
         <h2 className="text-xl">Log in with email and password.</h2>
       </div>
       <form action={dispatch} className="flex flex-col gap-3">
-        <Input name="id" type="text" placeholder="아이디" required />
+        <Input name="id" type="text" placeholder="아이디" required errors={fieldErrors?.id} />
         <Input
           name="password"
           type="password"
           placeholder="비밀번호"
           required
           minLength={PASSWORD_MIN_LENGTH}
+          errors={fieldErrors?.password}
         />
         <Button text="Log in" />
       </form>
