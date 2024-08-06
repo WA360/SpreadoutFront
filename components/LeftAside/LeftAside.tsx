@@ -155,10 +155,7 @@ export default function LeftAside() {
           className="hidden"
           onChange={handleFileChange}
         />
-        <ul
-          className="relative scrollable-list h-[calc(100%-48px)] overflow-auto scrollbar-hide"
-          ref={pdfListRef}
-        >
+        <ul className="relative scrollable-list overflow-auto scrollbar-hide" ref={pdfListRef}>
           {pdfFiles.map((file) => (
             <li
               key={file.id}
