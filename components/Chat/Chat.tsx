@@ -8,12 +8,7 @@ import DOMPurify from 'dompurify';
 import 'github-markdown-css/github-markdown.css';
 import { emojify } from 'node-emoji';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import {
-  pdfDataState,
-  selectedPdfIdState,
-  Message,
-  messageState,
-} from '@/recoil/atoms';
+import { pdfDataState, selectedPdfIdState, Message, messageState } from '@/recoil/atoms';
 import { Data } from '@/components/Graph/Graph';
 import { defaultShortcutConfig, useDirectInsertShortcut } from '@/lib/shortcut';
 
@@ -54,28 +49,23 @@ export default function Chat({ sessionId }: ChatProps) {
     }
   }, [server_messages]);
 
-  const sendMessage = async (
-    question: string,
-  ): Promise<ReadableStream<Uint8Array>> => {
+  const sendMessage = async (question: string): Promise<ReadableStream<Uint8Array>> => {
     if (!isEnd) return new ReadableStream<Uint8Array>();
 
-    const response = await fetch(
-      'http://3.38.176.179:8100/question/langchain',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          question: question,
-          fileNum: selectedPdfId,
-          ...(pdfData?.nodes[0]?.filename && {
-            fileName: pdfData?.nodes[0]?.filename,
-          }),
-          chatNum: pdfNum,
-        }),
+    const response = await fetch('http://3.38.176.179:8100/question/langchain', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    );
+      body: JSON.stringify({
+        question: question,
+        fileNum: selectedPdfId,
+        ...(pdfData?.nodes[0]?.filename && {
+          fileName: pdfData?.nodes[0]?.filename,
+        }),
+        chatNum: pdfNum,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -86,13 +76,8 @@ export default function Chat({ sessionId }: ChatProps) {
 
   // 메시지 저장을 위한 뮤테이션
   const saveMutation = useMutation({
-    mutationFn: ({
-      sessionId,
-      messages,
-    }: {
-      sessionId: number;
-      messages: Message[];
-    }) => saveMessage(sessionId, messages),
+    mutationFn: ({ sessionId, messages }: { sessionId: number; messages: Message[] }) =>
+      saveMessage(sessionId, messages),
     onSuccess: () => {
       // 성공적으로 저장되면 캐시를 업데이트합니다.
       // queryClient.invalidateQueries({
@@ -134,10 +119,7 @@ export default function Chat({ sessionId }: ChatProps) {
 
         setMessages((prev) => {
           const newMessages = [...prev];
-          if (
-            newMessages.length > 0 &&
-            !newMessages[newMessages.length - 1].isUser
-          ) {
+          if (newMessages.length > 0 && !newMessages[newMessages.length - 1].isUser) {
             newMessages[newMessages.length - 1] = {
               text: emojify(aiMessage),
               isUser: false,
@@ -222,9 +204,7 @@ export default function Chat({ sessionId }: ChatProps) {
                 <Markdown
                   rehypePlugins={[rehypeRaw]}
                   remarkPlugins={[remarkGfm]}
-                  className={
-                    'text-2xl [&>p:last-child]:mb-0 [&>p:first-child]:mb-0'
-                  }
+                  className={'text-2xl [&>p:last-child]:mb-0 [&>p:first-child]:mb-0'}
                 >
                   {DOMPurify.sanitize(message.text)}
                 </Markdown>
@@ -251,10 +231,7 @@ export default function Chat({ sessionId }: ChatProps) {
         )}
         <div ref={messagesEndRef} />
       </div>
-      <form
-        onSubmit={handleSendMessage}
-        className="flex items-center border p-[8px]"
-      >
+      <form onSubmit={handleSendMessage} className="flex border p-[8px] items-stretch">
         <textarea
           ref={inputRef}
           value={inputMessage}
@@ -265,11 +242,7 @@ export default function Chat({ sessionId }: ChatProps) {
           className="flex-grow p-2 border rounded-l resize-none leading-loose"
           rows={1}
         />
-        <button
-          type="submit"
-          disabled={!isEnd}
-          className="p-2 bg-blue-500 text-white rounded-r"
-        >
+        <button type="submit" disabled={!isEnd} className="p-2 bg-blue-500 text-white rounded-r">
           전송
         </button>
       </form>
