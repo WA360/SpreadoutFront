@@ -57,9 +57,9 @@
    - 이러한 라이브러리들을 조합하여 사용자는 다양한 형식의 텍스트를 안전하게 표시할 수 있고, 악성 코드 삽입으로부터 보호받을 수 있도록 보안성을 확보하였습니다.
 
 ## 프로젝트 결과
-- 링크 : http://jungledaltong.shop/login
-- 프로젝트 종합 github : [https://github.com/WA360/SpreadoutBack](https://github.com/WA360/Spread_out)
-- 영상 : https://youtu.be/3ZoiSgs1TYE
+- 프로젝트 링크 : http://jungledaltong.shop/login
+- 프로젝트 개요 github : https://github.com/WA360/Spread_out
+- 프로젝트 영상영상 : https://youtu.be/3ZoiSgs1TYE
   
 ## 프로젝트 리뷰
 이 프로젝트를 통해 LLM(대형 언어 모델) 기반 서비스의 동작 원리를 깊이 이해할 수 있었습니다. 특히, LLM은 입력으로 제한된 텍스트만 받을 수 있기 때문에, 이를 활용한 서비스를 개발할 때 사용자가 제공하는 데이터를 어떻게 전처리할지에 대한 고민이 필요함을 깨달았습니다.
