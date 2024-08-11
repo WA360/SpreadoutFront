@@ -58,7 +58,7 @@
 
 ## 프로젝트 결과
 - 링크 : http://jungledaltong.shop/login
-- git : https://github.com/WA360/SpreadoutBack
+- 프로젝트 종합 github : [https://github.com/WA360/SpreadoutBack](https://github.com/WA360/Spread_out)
 - 영상 : https://youtu.be/3ZoiSgs1TYE
   
 ## 프로젝트 리뷰
