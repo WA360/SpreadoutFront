@@ -12,7 +12,7 @@ export const getMessages = async (sessionId: number): Promise<Message[]> => {
   if (!sessionId) return [];
 
   const token =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzIzMjkxMDczLCJleHAiOjE3MjM4MzEwNzN9.F7Zdp5Shllu_PsRHq-0py_wmtonkfKeFaPbj8zsI6Q4';
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzIzODc1NDczLCJleHAiOjE3MjQ0MTU0NzN9.xRXs7z5uLw7jBzjHS8SmZSCyRD9GJxXsOtWIuqZekYs';
   const response = await axios.get('http://3.38.176.179:4000/bot/session/detail', {
     params: { chapterId: sessionId },
     headers: {
@@ -49,7 +49,7 @@ export const saveMessage = async (sessionId: number, messages: Message[]): Promi
 
   try {
     const token =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzIzMjkxMDczLCJleHAiOjE3MjM4MzEwNzN9.F7Zdp5Shllu_PsRHq-0py_wmtonkfKeFaPbj8zsI6Q4';
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzIzODc1NDczLCJleHAiOjE3MjQ0MTU0NzN9.xRXs7z5uLw7jBzjHS8SmZSCyRD9GJxXsOtWIuqZekYs';
     const response = await axios.put(
       `http://3.38.176.179:4000/bot/session/detail`,
       {

@@ -39,7 +39,7 @@ export default function LeftAside() {
   const getUserUUID = async () => {
     try {
       const token =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzIzMjkxMDczLCJleHAiOjE3MjM4MzEwNzN9.F7Zdp5Shllu_PsRHq-0py_wmtonkfKeFaPbj8zsI6Q4';
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzIzODc1NDczLCJleHAiOjE3MjQ0MTU0NzN9.xRXs7z5uLw7jBzjHS8SmZSCyRD9GJxXsOtWIuqZekYs';
       const response = await axios.get('http://3.38.176.179:4000/users/uuid', {
         headers: {
           token: `${token}`,
