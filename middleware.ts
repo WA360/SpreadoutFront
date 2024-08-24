@@ -11,7 +11,7 @@ const publicOnlyUrls: Routes = {
 
 export async function middleware(request: NextRequest) {
   const token =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzIzODc1NDczLCJleHAiOjE3MjQ0MTU0NzN9.xRXs7z5uLw7jBzjHS8SmZSCyRD9GJxXsOtWIuqZekYs';
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzI0NTA4Mzc0LCJleHAiOjE3MjUwNDgzNzR9.tdJXdeCKqMc0M5pIiSeavfV4vQdatrRUZ1GzwrrJZyA';
   const isPublicOnly = publicOnlyUrls[request.nextUrl.pathname];
 
   if (!token) {

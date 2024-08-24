@@ -6,7 +6,7 @@ import { cookies } from 'next/headers';
 export const fetchPdfFilesFromServer = async () => {
   try {
     const token =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzIzODc1NDczLCJleHAiOjE3MjQ0MTU0NzN9.xRXs7z5uLw7jBzjHS8SmZSCyRD9GJxXsOtWIuqZekYs';
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzI0NTA4Mzc0LCJleHAiOjE3MjUwNDgzNzR9.tdJXdeCKqMc0M5pIiSeavfV4vQdatrRUZ1GzwrrJZyA';
     const response = await axios.get('http://3.38.176.179:4000/pdf/list', {
       headers: {
         token: `${token}`,
@@ -22,7 +22,7 @@ export const fetchPdfFilesFromServer = async () => {
 export const fetchPdfDataFromServer = async (pdfId: number) => {
   try {
     const token =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzIzODc1NDczLCJleHAiOjE3MjQ0MTU0NzN9.xRXs7z5uLw7jBzjHS8SmZSCyRD9GJxXsOtWIuqZekYs';
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzI0NTA4Mzc0LCJleHAiOjE3MjUwNDgzNzR9.tdJXdeCKqMc0M5pIiSeavfV4vQdatrRUZ1GzwrrJZyA';
     const response = await axios.get('http://3.38.176.179:4000/pdf', {
       params: { pdfId },
       headers: {
