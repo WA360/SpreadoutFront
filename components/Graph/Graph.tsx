@@ -194,6 +194,7 @@ export default function Graph({
   handleNodeClick,
   handleSessionNodeClick,
 }: GraphProps) {
+  console.log('data==>', data); 
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [transformedData, setTransformedData] = useState<Data>({
@@ -533,7 +534,7 @@ export default function Graph({
 
   const customLink = async () => {
     const token =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzI0NTA4Mzc0LCJleHAiOjE3MjUwNDgzNzR9.tdJXdeCKqMc0M5pIiSeavfV4vQdatrRUZ1GzwrrJZyA';
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Iu2FjOyKpOydtCIsInVzZXJJZCI6InRlc3QyIiwidXVpZCI6MiwiaWF0IjoxNzI1MjYxMjExLCJleHAiOjE3OTcyNjEyMTF9.8P4sPDaHi6pikx6ArF17ejU-VBNbmFeONDAsnD15D90';
     try {
       const response = await fetch('http://3.38.176.179:4000/pdf/bookmark/connection', {
         method: 'POST',

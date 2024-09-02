@@ -11,8 +11,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Spread Out',
-  description:
-    'Spread Out is the best tool for studying with pdf and analyze it',
+  description: 'Spread Out is the best tool for studying with pdf and analyze it',
 };
 
 export default function RootLayout({
